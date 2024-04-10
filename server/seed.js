@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { faker } from "@faker-js/faker";
 const db = new Database("database.db");
 
 db.exec(`
@@ -113,14 +114,22 @@ const icons = [
   { name: "Zhongli", path: "./assets/zhongli_icon.webp" },
 ];
 
-let sql = reactions.map((item) => "(?)").join(", ");
-let params = reactions.flatMap((item) => item.reaction);
-db.prepare(`INSERT INTO reactions (reaction) VALUES ${sql}`).run(params);
+function insertDefaults() {
+  let sql = reactions.map((item) => "(?)").join(", ");
+  let params = reactions.flatMap((item) => item.reaction);
+  db.prepare(`INSERT INTO reactions (reaction) VALUES ${sql}`).run(params);
 
-sql = themes.map((item) => "(?)").join(", ");
-params = themes.flatMap((item) => item.theme);
-db.prepare(`INSERT INTO themes (theme) VALUES ${sql}`).run(params);
+  sql = themes.map((item) => "(?)").join(", ");
+  params = themes.flatMap((item) => item.theme);
+  db.prepare(`INSERT INTO themes (theme) VALUES ${sql}`).run(params);
 
-sql = icons.map((item) => "(?, ?)").join(", ");
-params = icons.flatMap((item) => [item.name , item.path]);
-db.prepare(`INSERT INTO icons (name, path) VALUES ${sql}`).run(params);
+  sql = icons.map((item) => "(?, ?)").join(", ");
+  params = icons.flatMap((item) => [item.name, item.path]);
+  db.prepare(`INSERT INTO icons (name, path) VALUES ${sql}`).run(params);
+}
+
+function test() {
+  console.log(faker.person.fullName());
+}
+
+export { test, insertDefaults };
