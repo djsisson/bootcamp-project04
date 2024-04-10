@@ -2,57 +2,76 @@ import Database from "better-sqlite3";
 import { faker } from "@faker-js/faker";
 const db = new Database("database.db");
 
-db.exec(`
+const g_userCount = 100;
+
+function createTables() {
+  db.exec(`
     CREATE TABLE IF NOT EXISTS reactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        reaction_id INTEGER PRIMARY KEY,
         reaction TEXT NOT NULL UNIQUE
     )
 `);
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS icons (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        path TEXT NOT NULL UNIQUE
-    )
-`);
-
-db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS themes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        theme_id INTEGER PRIMARY KEY,
         theme TEXT NOT NULL UNIQUE 
 )
 `);
 
-db.exec(`
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS icons (
+        icon_id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        path TEXT NOT NULL UNIQUE,
+        theme_id INTEGER REFERENCES themes (theme_id)
+            ON UPDATE RESTRICT
+            ON DELETE RESTRICT
+    )
+`);
+
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER PRIMARY KEY,
         username TEXT NOT NULL UNIQUE,
-        icon INTEGER CASCADE REFERENCES icons,
-        theme INTEGER CASCADE REFERENCES theme
+        icon_id INTEGER REFERENCES icons (icon_id)
+            ON UPDATE RESTRICT
+            ON DELETE RESTRICT
     )
 `);
 
-db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER CASCADE REFERENCES users,
+        id INTEGER PRIMARY KEY,
         message TEXT NOT NULL,
-        created DATE,
-        updated DATE,
-        likes INTEGER
+        created INTEGER,
+        updated INTEGER,
+        likes INTEGER,
+        user_id INTEGER REFERENCES users (user_id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE
     )
 `);
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS message_reaction (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        msg_id INTEGER CASCADE REFERENCES messages,
-        reaction_id INTEGER CASCADE REFERENCES reactions,
-        user_id INTEGER CASCADE REFERENCES users,
-        UNIQUE (msg_id, reaction_id, user_id)
-    )
-`);
+  // db.exec(`
+  //     CREATE TABLE IF NOT EXISTS message_reaction (
+  //         id INTEGER PRIMARY KEY,
+  //         msg_id INTEGER CASCADE REFERENCES messages,
+  //         reaction_id INTEGER CASCADE REFERENCES reactions,
+  //         user_id INTEGER CASCADE REFERENCES users,
+  //         UNIQUE (msg_id, reaction_id, user_id)
+  //     )
+  // `);
+}
+
+function dropTables() {
+  db.exec(`DROP TABLE IF EXISTS messages`);
+  db.exec(`DROP TABLE IF EXISTS users`);
+  db.exec(`DROP TABLE IF EXISTS icons`);
+  db.exec(`DROP TABLE IF EXISTS themes`);
+  db.exec(`DROP TABLE IF EXISTS reactions`);
+  db.exec(`DROP TABLE IF EXISTS message_reaction`);
+}
 
 const reactions = [
   { reaction: "Happy" },
@@ -73,45 +92,65 @@ const themes = [
 ];
 
 const icons = [
-  { name: "Albedo", path: "./assets/albedo_icon.webp" },
-  { name: "Alhaitham", path: "./assets/alhaitham_icon.webp" },
-  { name: "Arataki", path: "./assets/arataki_Itto_icon.webp" },
-  { name: "Baizhu", path: "./assets/baizhu_icon.webp" },
-  { name: "Chiori", path: "./assets/chiori_icon.webp" },
-  { name: "Cyno", path: "./assets/cyno_icon.webp" },
-  { name: "Dehya", path: "./assets/dehya_icon.webp" },
-  { name: "Diluc", path: "./assets/diluc_icon.webp" },
-  { name: "Eula", path: "./assets/eula_icon.webp" },
-  { name: "Furina", path: "./assets/furina_icon.webp" },
-  { name: "Ganyu", path: "./assets/ganyu_icon.webp" },
-  { name: "Hu tao", path: "./assets/hu_tao_icon.webp" },
-  { name: "Jean", path: "./assets/jean_icon.webp" },
-  { name: "Kaedehara Kazuha", path: "./assets/kaedehara_kazuha_icon.webp" },
-  { name: "Kamisato Ayaka", path: "./assets/kamisato_ayaka_icon.webp" },
-  { name: "Kamisato Ayato", path: "./assets/kamisato_ayato_icon.webp" },
-  { name: "Keqing", path: "./assets/keqing_icon.webp" },
-  { name: "Klee", path: "./assets/klee_icon.webp" },
-  { name: "Lyney", path: "./assets/lyney_icon.webp" },
-  { name: "Mona", path: "./assets/mona_icon.webp" },
-  { name: "Nahida", path: "./assets/nahida_icon.webp" },
-  { name: "Navia", path: "./assets/navia_icon.webp" },
-  { name: "Neuvillette", path: "./assets/neuvillette_icon.webp" },
-  { name: "Nilou", path: "./assets/nilou_icon.webp" },
-  { name: "Qiqi", path: "./assets/qiqi_icon.webp" },
-  { name: "Raiden Shogun", path: "./assets/raiden_shogun_icon.webp" },
-  { name: "Sangonomiya Kokomi", path: "./assets/sangonomiya_kokomi_icon.webp" },
-  { name: "Shenhe", path: "./assets/shenhe_icon.webp" },
-  { name: "Tartaglia", path: "./assets/tartaglia_icon.webp" },
-  { name: "Tighnari", path: "./assets/tighnari_icon.webp" },
-  { name: "Venti", path: "./assets/venti_icon.webp" },
-  { name: "Wanderer", path: "./assets/wanderer_icon.webp" },
-  { name: "Wriothesley", path: "./assets/wriothesley_icon.webp" },
-  { name: "Xianyun", path: "./assets/xianyun_icon.webp" },
-  { name: "Xiao", path: "./assets/xiao_icon.webp" },
-  { name: "Yae Miko", path: "./assets/yae_miko_icon.webp" },
-  { name: "Yelan", path: "./assets/yelan_icon.webp" },
-  { name: "Yoimiya", path: "./assets/yoimiya_icon.webp" },
-  { name: "Zhongli", path: "./assets/zhongli_icon.webp" },
+  { name: "Albedo", path: "./assets/albedo_icon.webp", theme_id: 6 },
+  { name: "Alhaitham", path: "./assets/alhaitham_icon.webp", theme_id: 4 },
+  { name: "Arataki", path: "./assets/arataki_Itto_icon.webp", theme_id: 6 },
+  { name: "Baizhu", path: "./assets/baizhu_icon.webp", theme_id: 4 },
+  { name: "Chiori", path: "./assets/chiori_icon.webp", theme_id: 6 },
+  { name: "Cyno", path: "./assets/cyno_icon.webp", theme_id: 7 },
+  { name: "Dehya", path: "./assets/dehya_icon.webp", theme_id: 1 },
+  { name: "Diluc", path: "./assets/diluc_icon.webp", theme_id: 1 },
+  { name: "Eula", path: "./assets/eula_icon.webp", theme_id: 2 },
+  { name: "Furina", path: "./assets/furina_icon.webp", theme_id: 5 },
+  { name: "Ganyu", path: "./assets/ganyu_icon.webp", theme_id: 2 },
+  { name: "Hu tao", path: "./assets/hu_tao_icon.webp", theme_id: 1 },
+  { name: "Jean", path: "./assets/jean_icon.webp", theme_id: 3 },
+  {
+    name: "Kaedehara Kazuha",
+    path: "./assets/kaedehara_kazuha_icon.webp",
+    theme_id: 3,
+  },
+  {
+    name: "Kamisato Ayaka",
+    path: "./assets/kamisato_ayaka_icon.webp",
+    theme_id: 2,
+  },
+  {
+    name: "Kamisato Ayato",
+    path: "./assets/kamisato_ayato_icon.webp",
+    theme_id: 5,
+  },
+  { name: "Keqing", path: "./assets/keqing_icon.webp", theme_id: 7 },
+  { name: "Klee", path: "./assets/klee_icon.webp", theme_id: 1 },
+  { name: "Lyney", path: "./assets/lyney_icon.webp", theme_id: 1 },
+  { name: "Mona", path: "./assets/mona_icon.webp", theme_id: 5 },
+  { name: "Nahida", path: "./assets/nahida_icon.webp", theme_id: 4 },
+  { name: "Navia", path: "./assets/navia_icon.webp", theme_id: 6 },
+  { name: "Neuvillette", path: "./assets/neuvillette_icon.webp", theme_id: 5 },
+  { name: "Nilou", path: "./assets/nilou_icon.webp", theme_id: 5 },
+  { name: "Qiqi", path: "./assets/qiqi_icon.webp", theme_id: 2 },
+  {
+    name: "Raiden Shogun",
+    path: "./assets/raiden_shogun_icon.webp",
+    theme_id: 7,
+  },
+  {
+    name: "Sangonomiya Kokomi",
+    path: "./assets/sangonomiya_kokomi_icon.webp",
+    theme_id: 5,
+  },
+  { name: "Shenhe", path: "./assets/shenhe_icon.webp", theme_id: 2 },
+  { name: "Tartaglia", path: "./assets/tartaglia_icon.webp", theme_id: 5 },
+  { name: "Tighnari", path: "./assets/tighnari_icon.webp", theme_id: 4 },
+  { name: "Venti", path: "./assets/venti_icon.webp", theme_id: 3 },
+  { name: "Wanderer", path: "./assets/wanderer_icon.webp", theme_id: 3 },
+  { name: "Wriothesley", path: "./assets/wriothesley_icon.webp", theme_id: 2 },
+  { name: "Xianyun", path: "./assets/xianyun_icon.webp", theme_id: 3 },
+  { name: "Xiao", path: "./assets/xiao_icon.webp", theme_id: 3 },
+  { name: "Yae Miko", path: "./assets/yae_miko_icon.webp", theme_id: 7 },
+  { name: "Yelan", path: "./assets/yelan_icon.webp", theme_id: 5 },
+  { name: "Yoimiya", path: "./assets/yoimiya_icon.webp", theme_id: 1 },
+  { name: "Zhongli", path: "./assets/zhongli_icon.webp", theme_id: 6 },
 ];
 
 function insertDefaults() {
@@ -123,9 +162,11 @@ function insertDefaults() {
   params = themes.flatMap((item) => item.theme);
   db.prepare(`INSERT INTO themes (theme) VALUES ${sql}`).run(params);
 
-  sql = icons.map((item) => "(?, ?)").join(", ");
-  params = icons.flatMap((item) => [item.name, item.path]);
-  db.prepare(`INSERT INTO icons (name, path) VALUES ${sql}`).run(params);
+  // let sql = icons.map((item) => "(?, ?, ?)").join(", ");
+  // let params = icons.flatMap((item) => [item.name, item.path, item.theme_id]);
+  // db.prepare(`INSERT INTO icons (name, path, theme_id) VALUES ${sql}`).run(
+  //   params
+  // );
 }
 
 function test() {
@@ -133,3 +174,56 @@ function test() {
 }
 
 export { test, insertDefaults };
+
+function startDb() {
+  db.transaction(() => {
+    dropTables();
+  }).apply();
+  db.transaction(() => {
+    createTables();
+  }).apply();
+  db.transaction(() => {
+    insertDefaults();
+  }).apply();
+  db.transaction(() => {
+    for (let i = 0; i < icons.length; i++) {
+      db.prepare(
+        `INSERT INTO icons (name, path, theme_id) VALUES (@name, @path, @theme_id)`
+      ).run(icons[i]);
+    }
+  }).apply();
+  db.transaction(() => {
+    for (let i = 0; i < g_userCount; i++) {
+      db.prepare(`INSERT INTO users (username, icon_id) VALUES (?, ?)`).run(
+        faker.person.fullName(),
+        parseInt(Math.floor(Math.random() * icons.length) + 1)
+      );
+    }
+  }).apply();
+  db.transaction(() => {
+    for (let i = 0; i < g_userCount; i++) {
+      for (let j = 0; j < parseInt(Math.floor(Math.random() * 4)); j++) {
+        let createdDate = faker.date.recent({ days: 365 });
+        let recentDate = faker.date.between({
+          from: createdDate,
+          to: Date.now(),
+        }).getTime();
+        let likes = parseInt(Math.floor(Math.random() * g_userCount/2));
+        db.prepare(
+          `INSERT INTO messages (message, created, updated, likes, user_id) VALUES (?, ?, ?, ?, ?)`
+        ).run(
+          faker.lorem.sentences({ min: 1, max: 3 }, "\n"),
+          createdDate.getTime(),
+          recentDate,
+          likes,
+          i + 1
+        );
+      }
+    }
+  }).apply();
+}
+startDb();
+
+// let sql = icons.map((item) => "(?, ?, ?)").join(", ");
+// let params = icons.flatMap((item) => [item.name, item.path, item.theme_id]);
+// db.prepare(`INSERT INTO icons (name, path, theme_id) VALUES ${sql}`).run(params);
