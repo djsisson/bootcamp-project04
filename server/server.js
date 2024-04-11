@@ -16,99 +16,110 @@ app.get("/", (req, res) => {
 
 app.get("/themes", (req, res) => {
   try {
-    res.status(200).json(query.getAllThemes())
+    res.status(200).json(query.getAllThemes());
   } catch (error) {
-    res.status(500).send()
+    res.status(500).send();
   }
 });
 
 app.get("/icons", (req, res) => {
   try {
-    res.status(200).json(query.getAllIcons())
+    res.status(200).json(query.getAllIcons());
   } catch (error) {
-    res.status(500).send()
+    res.status(500).send();
   }
 });
 
-
 app.post("/users/new", (req, res) => {
   try {
-    res.status(200).json(query.generateNewUser())
+    res.status(200).json(query.generateNewUser());
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
 app.put("/users/:userid(\\d+)", (req, res) => {
-  let userid = {}
+  let userid = {};
   Object.assign(userid, req.params, req.query);
   try {
     const result = query.updateUser(userid);
-    if (result.changes == 0){
-      res.status(400).send()
+    if (result.changes == 0) {
+      res.status(400).send();
     } else {
-      res.status(200).json(userid)
+      res.status(200).json(userid);
     }
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
 app.get("/users/:userid(\\d+)", (req, res) => {
   try {
     const result = query.getUser(req.params.userid);
-    if (result.length == 0){
-      res.status(400).send()
+    if (result.length == 0) {
+      res.status(400).send();
     } else {
-      res.status(200).send(result)
+      res.status(200).send(result);
     }
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
 app.delete("/users/:userid(\\d+)", (req, res) => {
   try {
     const result = query.deleteUser(req.params.userid);
-    if (result.changes == 0){
-      res.status(400).send()
+    if (result.changes == 0) {
+      res.status(400).send();
     } else {
-      res.status(200).send()
+      res.status(200).send();
     }
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
 app.get("/messages/:msgid(\\d+)", (req, res) => {
   try {
-    
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
-app.get("/messages/page/:count(\\d+)", (req, res) => {
+app.get("/messages/page/:count(\\d+)/:userid(\\d+)", (req, res) => {
   try {
-    
+    res
+      .status(200)
+      .json(query.getMessages(req.params.count, req.params.userid));
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
 app.get("/messages/user/:userid(\\d+)", (req, res) => {
   try {
-    
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
   }
 });
 
 app.post("/messages", (req, res) => {
   try {
-    
   } catch (error) {
-    res.status(400).send()
+    res.status(400).send();
+  }
+});
+
+app.delete("/messages/:msgid(\\d+)", (req, res) => {
+  try {
+    const result = query.deleteMessage(req.params.msgid);
+    if (result.changes == 0) {
+      res.status(400).send();
+    } else {
+      res.status(200).send();
+    }
+  } catch (error) {
+    res.status(400).send();
   }
 });
 

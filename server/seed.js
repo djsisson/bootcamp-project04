@@ -42,7 +42,7 @@ function createTables() {
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY,
+        msg_id INTEGER PRIMARY KEY,
         message TEXT NOT NULL,
         created INTEGER,
         updated INTEGER,
