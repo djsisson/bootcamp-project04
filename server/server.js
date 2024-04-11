@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import * as seed from "./seed.js";
+import * as query from "./query.js";
 
 const app = express();
 
@@ -11,40 +11,105 @@ import Database from "better-sqlite3";
 const db = new Database("database.db");
 
 app.get("/", (req, res) => {
-  res.send("test from server");
+  res.status(403).send();
 });
 
 app.get("/themes", (req, res) => {
-  res.json(db.prepare("SELECT * FROM themes").all());
-});
-
-app.get("/icons", (req, res) => {
-  res.json(db.prepare("SELECT * FROM icons").all());
-});
-
-
-app.post("/users/random", (req, res) => {
-  res.json(seed.newUser());
-});
-
-app.post("/users/:userid(\\d+)", (req, res) => {
   try {
-    Object.assign(req.params, req.query);
-    const update = db
-      .prepare(
-        "UPDATE users SET username = (@username), icon_id = (@iconid) WHERE user_id = (@userid)"
-      )
-      .run(req.params);
-    res.json(req.params);
+    res.status(200).json(query.getAllThemes())
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).send()
   }
 });
 
-app.get("/users/:userId(\\d+)", (req, res) => {
-  res.json(
-    db.prepare("SELECT * FROM users WHERE user_id = (?)").all(req.params.userId)
-  );
+app.get("/icons", (req, res) => {
+  try {
+    res.status(200).json(query.getAllIcons())
+  } catch (error) {
+    res.status(500).send()
+  }
+});
+
+
+app.post("/users/new", (req, res) => {
+  try {
+    res.status(200).json(query.generateNewUser())
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.put("/users/:userid(\\d+)", (req, res) => {
+  let userid = {}
+  Object.assign(userid, req.params, req.query);
+  try {
+    const result = query.updateUser(userid);
+    if (result.changes == 0){
+      res.status(400).send()
+    } else {
+      res.status(200).json(userid)
+    }
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.get("/users/:userid(\\d+)", (req, res) => {
+  try {
+    const result = query.getUser(req.params.userid);
+    if (result.length == 0){
+      res.status(400).send()
+    } else {
+      res.status(200).send(result)
+    }
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.delete("/users/:userid(\\d+)", (req, res) => {
+  try {
+    const result = query.deleteUser(req.params.userid);
+    if (result.changes == 0){
+      res.status(400).send()
+    } else {
+      res.status(200).send()
+    }
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.get("/messages/:msgid(\\d+)", (req, res) => {
+  try {
+    
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.get("/messages/page/:count(\\d+)", (req, res) => {
+  try {
+    
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.get("/messages/user/:userid(\\d+)", (req, res) => {
+  try {
+    
+  } catch (error) {
+    res.status(400).send()
+  }
+});
+
+app.post("/messages", (req, res) => {
+  try {
+    
+  } catch (error) {
+    res.status(400).send()
+  }
 });
 
 app.listen(8080, () => {

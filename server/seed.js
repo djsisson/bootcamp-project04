@@ -235,7 +235,6 @@ function newUser() {
   const insert = db.prepare(
     `INSERT INTO users (username, icon_id) VALUES (?, ?)`
   );
-
   try {
     const trans = db
       .transaction((x) => {
@@ -250,7 +249,7 @@ function newUser() {
       .prepare("SELECT * FROM users where user_id = (?)")
       .all(trans.lastInsertRowid);
   } catch (error) {
-    return error;
+    throw error;
   }
 }
 
