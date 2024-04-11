@@ -73,7 +73,46 @@ function updateUser(userid) {
   }
 }
 
-function newMessage() {}
+function messagesByUser(userid) {
+  try {
+    const msg = db
+      .prepare("SELECT * FROM messages WHERE user_id = (?)")
+      .all(userid);
+    return msg;
+  } catch (error) {
+    throw error;
+  }
+}
+
+function getMessageById(msgId) {
+  try {
+    const msg = db
+      .prepare("SELECT * FROM messages WHERE msg_id = (?)")
+      .all(msgId);
+    return msg;
+  } catch (error) {
+    throw error;
+  }
+}
+
+function newMessage(userid, message) {
+  const insert = db.prepare(
+    `INSERT INTO messages (message, created, updated, likes, user_id) VALUES (?, ?, ?, ? , ?)`
+  );
+  try {
+    const trans = db
+      .transaction((x) => {
+        const test = insert.run(message, Date.now(), Date.now(), 0, userid);
+        return test;
+      })
+      .apply();
+    return db
+      .prepare("SELECT * FROM messages where msg_id = (?)")
+      .all(trans.lastInsertRowid);
+  } catch (error) {
+    throw error;
+  }
+}
 
 function getMessages(count = 10, userid = 0) {
   try {
@@ -93,21 +132,23 @@ function getMessages(count = 10, userid = 0) {
   }
 }
 
-function likeMessage(msgid) {}
+function likeMessage(msgid) {
+    //TODO
+}
 
 function deleteMessage(msgid) {
-    const msg = db.prepare("DELETE FROM messages WHERE msg_id = (?)");
-    try {
-      const trans = db
-        .transaction(() => {
-          const test = msg.run(msgid);
-          return test;
-        })
-        .apply();
-      return trans;
-    } catch (error) {
-      throw error;
-    }
+  const msg = db.prepare("DELETE FROM messages WHERE msg_id = (?)");
+  try {
+    const trans = db
+      .transaction(() => {
+        const test = msg.run(msgid);
+        return test;
+      })
+      .apply();
+    return trans;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export {
@@ -118,5 +159,9 @@ export {
   updateUser,
   deleteUser,
   getMessages,
-  deleteMessage
+  deleteMessage,
+  messagesByUser,
+  getMessageById,
+  newMessage,
+  likeMessage,
 };

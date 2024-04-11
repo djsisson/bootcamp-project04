@@ -81,6 +81,12 @@ app.delete("/users/:userid(\\d+)", (req, res) => {
 
 app.get("/messages/:msgid(\\d+)", (req, res) => {
   try {
+    const result = query.getMessageById(req.params.msgid);
+    if (result.length == 0) {
+      res.status(400).send();
+    } else {
+      res.status(200).send(result);
+    }
   } catch (error) {
     res.status(400).send();
   }
@@ -98,13 +104,28 @@ app.get("/messages/page/:count(\\d+)/:userid(\\d+)", (req, res) => {
 
 app.get("/messages/user/:userid(\\d+)", (req, res) => {
   try {
+    const result = query.getUser(req.params.userid);
+    if (result.length == 0) {
+      res.status(400).send();
+    } else {
+      res.status(200).send(result);
+    }
   } catch (error) {
     res.status(400).send();
   }
 });
 
-app.post("/messages", (req, res) => {
+app.put("/messages/:msgid(\\d+)/Like", (req, res) => {
+  //TODO
   try {
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+app.post("/messages/:userid(\\d+)", (req, res) => {
+  try {
+    res.status(200).json(query.newMessage(req.params.userid, req.body.message));
   } catch (error) {
     res.status(400).send();
   }

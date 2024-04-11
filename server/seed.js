@@ -229,7 +229,10 @@ function startDb() {
     insertMessages();
   }).apply();
 }
-// startDb();
+
+function resetDB(){
+  startDb();
+}
 
 function newUser() {
   const insert = db.prepare(
@@ -253,4 +256,4 @@ function newUser() {
   }
 }
 
-export { newUser };
+export { newUser , resetDB};
