@@ -153,27 +153,58 @@ const icons = [
   { name: "Zhongli", path: "./assets/zhongli_icon.webp", theme_id: 6 },
 ];
 
-function insertDefaults() {
+function insertReactions() {
   let sql = reactions.map((item) => "(?)").join(", ");
   let params = reactions.flatMap((item) => item.reaction);
   db.prepare(`INSERT INTO reactions (reaction) VALUES ${sql}`).run(params);
+}
 
-  sql = themes.map((item) => "(?)").join(", ");
-  params = themes.flatMap((item) => item.theme);
+function insertThemes() {
+  let sql = themes.map((item) => "(?)").join(", ");
+  let params = themes.flatMap((item) => item.theme);
   db.prepare(`INSERT INTO themes (theme) VALUES ${sql}`).run(params);
-
-  // let sql = icons.map((item) => "(?, ?, ?)").join(", ");
-  // let params = icons.flatMap((item) => [item.name, item.path, item.theme_id]);
-  // db.prepare(`INSERT INTO icons (name, path, theme_id) VALUES ${sql}`).run(
-  //   params
-  // );
 }
 
-function test() {
-  console.log(faker.person.fullName());
+function insertIcons() {
+  let sql = icons.map((item) => "(?, ?, ?)").join(", ");
+  let params = icons.map((item) => [item.name, item.path, item.theme_id]);
+  db.prepare(`INSERT INTO icons (name, path, theme_id) VALUES ${sql}`).run(
+    ...params
+  );
 }
 
-export { test, insertDefaults };
+function insertUsers() {
+  for (let i = 0; i < g_userCount; i++) {
+    db.prepare(`INSERT INTO users (username, icon_id) VALUES (?, ?)`).run(
+      `${faker.word.adjective()} ${faker.word.noun()}`,
+      parseInt(Math.floor(Math.random() * icons.length) + 1)
+    );
+  }
+}
+
+function insertMessages() {
+  for (let i = 0; i < g_userCount; i++) {
+    for (let j = 0; j < parseInt(Math.floor(Math.random() * 4)); j++) {
+      let createdDate = faker.date.recent({ days: 365 });
+      let recentDate = faker.date
+        .between({
+          from: createdDate,
+          to: Date.now(),
+        })
+        .getTime();
+      let likes = parseInt(Math.floor((Math.random() * g_userCount) / 2));
+      db.prepare(
+        `INSERT INTO messages (message, created, updated, likes, user_id) VALUES (?, ?, ?, ?, ?)`
+      ).run(
+        faker.lorem.sentences({ min: 1, max: 3 }, "\n"),
+        createdDate.getTime(),
+        recentDate,
+        likes,
+        i + 1
+      );
+    }
+  }
+}
 
 function startDb() {
   db.transaction(() => {
@@ -183,47 +214,44 @@ function startDb() {
     createTables();
   }).apply();
   db.transaction(() => {
-    insertDefaults();
+    insertReactions();
   }).apply();
   db.transaction(() => {
-    for (let i = 0; i < icons.length; i++) {
-      db.prepare(
-        `INSERT INTO icons (name, path, theme_id) VALUES (@name, @path, @theme_id)`
-      ).run(icons[i]);
-    }
+    insertThemes();
   }).apply();
   db.transaction(() => {
-    for (let i = 0; i < g_userCount; i++) {
-      db.prepare(`INSERT INTO users (username, icon_id) VALUES (?, ?)`).run(
-        faker.person.fullName(),
-        parseInt(Math.floor(Math.random() * icons.length) + 1)
-      );
-    }
+    insertIcons();
   }).apply();
   db.transaction(() => {
-    for (let i = 0; i < g_userCount; i++) {
-      for (let j = 0; j < parseInt(Math.floor(Math.random() * 4)); j++) {
-        let createdDate = faker.date.recent({ days: 365 });
-        let recentDate = faker.date.between({
-          from: createdDate,
-          to: Date.now(),
-        }).getTime();
-        let likes = parseInt(Math.floor(Math.random() * g_userCount/2));
-        db.prepare(
-          `INSERT INTO messages (message, created, updated, likes, user_id) VALUES (?, ?, ?, ?, ?)`
-        ).run(
-          faker.lorem.sentences({ min: 1, max: 3 }, "\n"),
-          createdDate.getTime(),
-          recentDate,
-          likes,
-          i + 1
-        );
-      }
-    }
+    insertUsers();
+  }).apply();
+  db.transaction(() => {
+    insertMessages();
   }).apply();
 }
-startDb();
+// startDb();
 
-// let sql = icons.map((item) => "(?, ?, ?)").join(", ");
-// let params = icons.flatMap((item) => [item.name, item.path, item.theme_id]);
-// db.prepare(`INSERT INTO icons (name, path, theme_id) VALUES ${sql}`).run(params);
+function newUser() {
+  const insert = db.prepare(
+    `INSERT INTO users (username, icon_id) VALUES (?, ?)`
+  );
+
+  try {
+    const trans = db
+      .transaction((x) => {
+        const test = insert.run(
+          `${faker.word.adjective()} ${faker.word.noun()}`,
+          parseInt(Math.floor(Math.random() * icons.length) + 1)
+        );
+        return test;
+      })
+      .apply();
+    return db
+      .prepare("SELECT * FROM users where user_id = (?)")
+      .all(trans.lastInsertRowid);
+  } catch (error) {
+    return error;
+  }
+}
+
+export { newUser };
