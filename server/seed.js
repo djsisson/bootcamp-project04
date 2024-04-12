@@ -16,7 +16,8 @@ function createTables() {
     CREATE TABLE IF NOT EXISTS themes (
         theme_id INTEGER PRIMARY KEY,
         name TEST NOT NULL UNIQUE,
-        colour TEXT NOT NULL UNIQUE 
+        colour TEXT NOT NULL UNIQUE,
+        path TEXT NOT NULL UNIQUE 
 )
 `);
 
@@ -83,75 +84,75 @@ const reactions = [
 ];
 
 const themes = [
-  { name: "Pyro" ,colour: "#ef7938" },
-  { name: "Cryo" ,colour: "#9fd6e3" },
-  { name: "Anemo" ,colour: "#74c2a8" },
-  { name: "Dendro" ,colour: "#a5c83b" },
-  { name: "Hydro" ,colour: "#4cc2f1" },
-  { name: "Geo" ,colour: "#fab632" },
-  { name: "Electro" ,colour: "#af8ec1" },
+  { name: "Pyro", colour: "#ef7938", path: "./assets/elements/pyro.svg" },
+  { name: "Cryo", colour: "#9fd6e3", path: "./assets/elements/cryo.svg" },
+  { name: "Anemo", colour: "#74c2a8", path: "./assets/elements/anemo.svg" },
+  { name: "Dendro", colour: "#a5c83b", path: "./assets/elements/dendro.svg" },
+  { name: "Hydro", colour: "#4cc2f1", path: "./assets/elements/hydro.svg" },
+  { name: "Geo", colour: "#fab632", path: "./assets/elements/geo.svg" },
+  { name: "Electro", colour: "#af8ec1", path: "./assets/elements/electro.svg" },
 ];
 
 const icons = [
-  { name: "Albedo", path: "./assets/albedo_icon.webp", theme_id: 6 },
-  { name: "Alhaitham", path: "./assets/alhaitham_icon.webp", theme_id: 4 },
-  { name: "Arataki", path: "./assets/arataki_Itto_icon.webp", theme_id: 6 },
-  { name: "Baizhu", path: "./assets/baizhu_icon.webp", theme_id: 4 },
-  { name: "Chiori", path: "./assets/chiori_icon.webp", theme_id: 6 },
-  { name: "Cyno", path: "./assets/cyno_icon.webp", theme_id: 7 },
-  { name: "Dehya", path: "./assets/dehya_icon.webp", theme_id: 1 },
-  { name: "Diluc", path: "./assets/diluc_icon.webp", theme_id: 1 },
-  { name: "Eula", path: "./assets/eula_icon.webp", theme_id: 2 },
-  { name: "Furina", path: "./assets/furina_icon.webp", theme_id: 5 },
-  { name: "Ganyu", path: "./assets/ganyu_icon.webp", theme_id: 2 },
-  { name: "Hu tao", path: "./assets/hu_tao_icon.webp", theme_id: 1 },
-  { name: "Jean", path: "./assets/jean_icon.webp", theme_id: 3 },
+  { name: "Albedo", path: "./assets/icons/albedo_icon.webp", theme_id: 6 },
+  { name: "Alhaitham", path: "./assets/icons/alhaitham_icon.webp", theme_id: 4 },
+  { name: "Arataki", path: "./assets/icons/arataki_Itto_icon.webp", theme_id: 6 },
+  { name: "Baizhu", path: "./assets/icons/baizhu_icon.webp", theme_id: 4 },
+  { name: "Chiori", path: "./assets/icons/chiori_icon.webp", theme_id: 6 },
+  { name: "Cyno", path: "./assets/icons/cyno_icon.webp", theme_id: 7 },
+  { name: "Dehya", path: "./assets/icons/dehya_icon.webp", theme_id: 1 },
+  { name: "Diluc", path: "./assets/icons/diluc_icon.webp", theme_id: 1 },
+  { name: "Eula", path: "./assets/icons/eula_icon.webp", theme_id: 2 },
+  { name: "Furina", path: "./assets/icons/furina_icon.webp", theme_id: 5 },
+  { name: "Ganyu", path: "./assets/icons/ganyu_icon.webp", theme_id: 2 },
+  { name: "Hu tao", path: "./assets/icons/hu_tao_icon.webp", theme_id: 1 },
+  { name: "Jean", path: "./assets/icons/jean_icon.webp", theme_id: 3 },
   {
     name: "Kaedehara Kazuha",
-    path: "./assets/kaedehara_kazuha_icon.webp",
+    path: "./assets/icons/kaedehara_kazuha_icon.webp",
     theme_id: 3,
   },
   {
     name: "Kamisato Ayaka",
-    path: "./assets/kamisato_ayaka_icon.webp",
+    path: "./assets/icons/kamisato_ayaka_icon.webp",
     theme_id: 2,
   },
   {
     name: "Kamisato Ayato",
-    path: "./assets/kamisato_ayato_icon.webp",
+    path: "./assets/icons/kamisato_ayato_icon.webp",
     theme_id: 5,
   },
-  { name: "Keqing", path: "./assets/keqing_icon.webp", theme_id: 7 },
-  { name: "Klee", path: "./assets/klee_icon.webp", theme_id: 1 },
-  { name: "Lyney", path: "./assets/lyney_icon.webp", theme_id: 1 },
-  { name: "Mona", path: "./assets/mona_icon.webp", theme_id: 5 },
-  { name: "Nahida", path: "./assets/nahida_icon.webp", theme_id: 4 },
-  { name: "Navia", path: "./assets/navia_icon.webp", theme_id: 6 },
-  { name: "Neuvillette", path: "./assets/neuvillette_icon.webp", theme_id: 5 },
-  { name: "Nilou", path: "./assets/nilou_icon.webp", theme_id: 5 },
-  { name: "Qiqi", path: "./assets/qiqi_icon.webp", theme_id: 2 },
+  { name: "Keqing", path: "./assets/icons/keqing_icon.webp", theme_id: 7 },
+  { name: "Klee", path: "./assets/icons/klee_icon.webp", theme_id: 1 },
+  { name: "Lyney", path: "./assets/icons/lyney_icon.webp", theme_id: 1 },
+  { name: "Mona", path: "./assets/icons/mona_icon.webp", theme_id: 5 },
+  { name: "Nahida", path: "./assets/icons/nahida_icon.webp", theme_id: 4 },
+  { name: "Navia", path: "./assets/icons/navia_icon.webp", theme_id: 6 },
+  { name: "Neuvillette", path: "./assets/icons/neuvillette_icon.webp", theme_id: 5 },
+  { name: "Nilou", path: "./assets/icons/nilou_icon.webp", theme_id: 5 },
+  { name: "Qiqi", path: "./assets/icons/qiqi_icon.webp", theme_id: 2 },
   {
     name: "Raiden Shogun",
-    path: "./assets/raiden_shogun_icon.webp",
+    path: "./assets/icons/raiden_shogun_icon.webp",
     theme_id: 7,
   },
   {
     name: "Sangonomiya Kokomi",
-    path: "./assets/sangonomiya_kokomi_icon.webp",
+    path: "./assets/icons/sangonomiya_kokomi_icon.webp",
     theme_id: 5,
   },
-  { name: "Shenhe", path: "./assets/shenhe_icon.webp", theme_id: 2 },
-  { name: "Tartaglia", path: "./assets/tartaglia_icon.webp", theme_id: 5 },
-  { name: "Tighnari", path: "./assets/tighnari_icon.webp", theme_id: 4 },
-  { name: "Venti", path: "./assets/venti_icon.webp", theme_id: 3 },
-  { name: "Wanderer", path: "./assets/wanderer_icon.webp", theme_id: 3 },
-  { name: "Wriothesley", path: "./assets/wriothesley_icon.webp", theme_id: 2 },
-  { name: "Xianyun", path: "./assets/xianyun_icon.webp", theme_id: 3 },
-  { name: "Xiao", path: "./assets/xiao_icon.webp", theme_id: 3 },
-  { name: "Yae Miko", path: "./assets/yae_miko_icon.webp", theme_id: 7 },
-  { name: "Yelan", path: "./assets/yelan_icon.webp", theme_id: 5 },
-  { name: "Yoimiya", path: "./assets/yoimiya_icon.webp", theme_id: 1 },
-  { name: "Zhongli", path: "./assets/zhongli_icon.webp", theme_id: 6 },
+  { name: "Shenhe", path: "./assets/icons/shenhe_icon.webp", theme_id: 2 },
+  { name: "Tartaglia", path: "./assets/icons/tartaglia_icon.webp", theme_id: 5 },
+  { name: "Tighnari", path: "./assets/icons/tighnari_icon.webp", theme_id: 4 },
+  { name: "Venti", path: "./assets/icons/venti_icon.webp", theme_id: 3 },
+  { name: "Wanderer", path: "./assets/icons/wanderer_icon.webp", theme_id: 3 },
+  { name: "Wriothesley", path: "./assets/icons/wriothesley_icon.webp", theme_id: 2 },
+  { name: "Xianyun", path: "./assets/icons/xianyun_icon.webp", theme_id: 3 },
+  { name: "Xiao", path: "./assets/icons/xiao_icon.webp", theme_id: 3 },
+  { name: "Yae Miko", path: "./assets/icons/yae_miko_icon.webp", theme_id: 7 },
+  { name: "Yelan", path: "./assets/icons/yelan_icon.webp", theme_id: 5 },
+  { name: "Yoimiya", path: "./assets/icons/yoimiya_icon.webp", theme_id: 1 },
+  { name: "Zhongli", path: "./assets/icons/zhongli_icon.webp", theme_id: 6 },
 ];
 
 function insertReactions() {
@@ -161,9 +162,9 @@ function insertReactions() {
 }
 
 function insertThemes() {
-  let sql = themes.map((item) => "(?, ?)").join(", ");
-  let params = themes.map((item) => [item.name, item.colour]);
-  db.prepare(`INSERT INTO themes (name, colour) VALUES ${sql}`).run(...params);
+  let sql = themes.map((item) => "(?, ?, ?)").join(", ");
+  let params = themes.map((item) => [item.name, item.colour, item.path]);
+  db.prepare(`INSERT INTO themes (name, colour, path) VALUES ${sql}`).run(...params);
 }
 
 function insertIcons() {
@@ -231,26 +232,14 @@ function resetDb() {
   }).apply();
 }
 
-function newUser() {
-  const insert = db.prepare(
-    `INSERT INTO users (username, icon_id) VALUES (?, ?)`
-  );
-  try {
-    const trans = db
-      .transaction((x) => {
-        const test = insert.run(
-          `${faker.word.adjective()} ${faker.word.noun()}`,
-          parseInt(Math.floor(Math.random() * icons.length) + 1)
-        );
-        return test;
-      })
-      .apply();
-    return db
-      .prepare("SELECT * FROM users where user_id = (?)")
-      .all(trans.lastInsertRowid);
-  } catch (error) {
-    throw error;
-  }
+function getRandomName() {
+  return `${faker.word.adjective()} ${faker.word.noun()}`;
 }
 
-export { newUser , resetDb};
+function getRandomIcon(){
+ return parseInt(Math.floor(Math.random() * icons.length) + 1)
+}
+
+// resetDb()
+
+export { resetDb, getRandomName, getRandomIcon };

@@ -12,19 +12,43 @@ function getAllThemes() {
   }
 }
 
+function getRandomName(){
+  return seed.getRandomName()
+}
+
 function getAllIcons() {
   try {
-    const icons = db.prepare(`SELECT t.*, json_group_array(json_object('id', i.icon_id, 'name', i.name, 'path', i.path)) Characters FROM icons as i INNER JOIN themes AS t ON i.theme_id = t.theme_id GROUP BY i.theme_id`).all()
-    return icons.map((x) => ({"id": x.theme_id, "name": x.name, "colour": x.colour, "characters": JSON.parse(x.Characters)}))
+    const icons = db
+      .prepare(
+        `SELECT t.*, json_group_array(json_object('id', i.icon_id, 'name', i.name, 'path', i.path)) Characters FROM icons as i INNER JOIN themes AS t ON i.theme_id = t.theme_id GROUP BY i.theme_id`
+      )
+      .all();
+    return icons.map((x) => ({
+      id: x.theme_id,
+      name: x.name,
+      colour: x.colour,
+      path: x.path,
+      characters: JSON.parse(x.Characters),
+    }));
   } catch (error) {
     throw error;
   }
 }
 
 function generateNewUser() {
+  const newUser = db.prepare(
+      `INSERT INTO users (username, icon_id) VALUES (?, ?)`
+    );
   try {
-    const newUser = seed.newUser();
-    return newUser;
+    const trans = db
+      .transaction((x) => {
+        const test = newUser.run(seed.getRandomName(), seed.getRandomIcon());
+        return test;
+      })
+      .apply();
+    return db
+      .prepare("SELECT * FROM users where user_id = (?)")
+      .all(trans.lastInsertRowid)[0];
   } catch (error) {
     throw error;
   }
@@ -34,7 +58,7 @@ function getUser(userid) {
   try {
     const user = db
       .prepare("SELECT * FROM users WHERE user_id = (?)")
-      .all(userid);
+      .all(userid)[0];
     return user;
   } catch (error) {
     throw error;
@@ -116,15 +140,16 @@ function newMessage(userid, message) {
 
 function getMessages(userid = 0, page = 0, count = 10) {
   try {
+    if (page==0) page = Date.now()
     const newMessageFromUser = `SELECT * FROM messages WHERE user_id = (?) ORDER BY created DESC LIMIT 1`;
     const message = db.prepare(`${newMessageFromUser}`).all(userid);
     let msgid = 0;
     if (message.length != 0) msgid = message[0].msg_id;
     const newestMessages = db
       .prepare(
-        `SELECT * FROM messages WHERE msg_id != (?) ORDER BY created DESC LIMIT (?) OFFSET (?)`
+        `SELECT * FROM messages WHERE msg_id != (?) AND created < (?) ORDER BY created DESC LIMIT (?)`
       )
-      .all(msgid, count - Boolean(msgid), page*count);
+      .all(msgid,page ,count - Boolean(msgid));
     return message.concat(newestMessages);
   } catch (error) {
     console.log(error);
@@ -132,8 +157,17 @@ function getMessages(userid = 0, page = 0, count = 10) {
   }
 }
 
+function getTotalMessageCount(){
+  try {
+    const total = db.prepare("SELECT COUNT(*) AS Total FROM messages").all();
+    return total;
+  } catch (error) {
+    throw error;
+  }
+}
+
 function likeMessage(msgid) {
-    //TODO
+  //TODO
 }
 
 function deleteMessage(msgid) {
@@ -164,4 +198,6 @@ export {
   getMessageById,
   newMessage,
   likeMessage,
+  getTotalMessageCount,
+  getRandomName
 };

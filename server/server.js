@@ -30,6 +30,14 @@ app.get("/icons", (req, res) => {
   }
 });
 
+app.get("/users/random", (req, res) => {
+  try {
+    res.status(200).json(query.getRandomName());
+  } catch (error) {
+    res.status(500).send();
+  }
+});
+
 app.post("/users/new", (req, res) => {
   try {
     res.status(200).json(query.generateNewUser());
@@ -92,11 +100,24 @@ app.get("/messages/:msgid(\\d+)", (req, res) => {
   }
 });
 
-app.get("/messages/:userid(\\d+)/:page(\\d+)/:count(\\d+)", (req, res) => {
+app.get("/messages/count", (req, res) => {
+  try {
+    const result = query.getTotalMessageCount();
+    if (result.length == 0) {
+      res.status(400).send();
+    } else {
+      res.status(200).send(result);
+    }
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+app.get("/messages/:userid(\\d+)/:offset(\\d+)/:count(\\d+)", (req, res) => {
   try {
     res
       .status(200)
-      .json(query.getMessages(req.params.userid, req.params.page, req.params.count));
+      .json(query.getMessages(req.params.userid, req.params.offset, req.params.count));
   } catch (error) {
     res.status(400).send();
   }
