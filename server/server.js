@@ -92,11 +92,11 @@ app.get("/messages/:msgid(\\d+)", (req, res) => {
   }
 });
 
-app.get("/messages/page/:count(\\d+)/:userid(\\d+)", (req, res) => {
+app.get("/messages/:userid(\\d+)/:page(\\d+)/:count(\\d+)", (req, res) => {
   try {
     res
       .status(200)
-      .json(query.getMessages(req.params.count, req.params.userid));
+      .json(query.getMessages(req.params.userid, req.params.page, req.params.count));
   } catch (error) {
     res.status(400).send();
   }

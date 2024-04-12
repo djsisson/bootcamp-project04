@@ -14,8 +14,8 @@ function getAllThemes() {
 
 function getAllIcons() {
   try {
-    const icons = db.prepare("SELECT * FROM icons").all();
-    return icons;
+    const icons = db.prepare(`SELECT t.*, json_group_array(json_object('id', i.icon_id, 'name', i.name, 'path', i.path)) Characters FROM icons as i INNER JOIN themes AS t ON i.theme_id = t.theme_id GROUP BY i.theme_id`).all()
+    return icons.map((x) => ({"id": x.theme_id, "name": x.name, "colour": x.colour, "characters": JSON.parse(x.Characters)}))
   } catch (error) {
     throw error;
   }
@@ -114,7 +114,7 @@ function newMessage(userid, message) {
   }
 }
 
-function getMessages(count = 10, userid = 0) {
+function getMessages(userid = 0, page = 0, count = 10) {
   try {
     const newMessageFromUser = `SELECT * FROM messages WHERE user_id = (?) ORDER BY created DESC LIMIT 1`;
     const message = db.prepare(`${newMessageFromUser}`).all(userid);
@@ -122,9 +122,9 @@ function getMessages(count = 10, userid = 0) {
     if (message.length != 0) msgid = message[0].msg_id;
     const newestMessages = db
       .prepare(
-        `SELECT * FROM messages WHERE msg_id != (?) ORDER BY created DESC LIMIT (?)`
+        `SELECT * FROM messages WHERE msg_id != (?) ORDER BY created DESC LIMIT (?) OFFSET (?)`
       )
-      .all(msgid, count);
+      .all(msgid, count - Boolean(msgid), page*count);
     return message.concat(newestMessages);
   } catch (error) {
     console.log(error);

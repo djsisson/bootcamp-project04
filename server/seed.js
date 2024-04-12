@@ -15,7 +15,8 @@ function createTables() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS themes (
         theme_id INTEGER PRIMARY KEY,
-        theme TEXT NOT NULL UNIQUE 
+        name TEST NOT NULL UNIQUE,
+        colour TEXT NOT NULL UNIQUE 
 )
 `);
 
@@ -82,13 +83,13 @@ const reactions = [
 ];
 
 const themes = [
-  { theme: "#ef7938" },
-  { theme: "#9fd6e3" },
-  { theme: "#74c2a8" },
-  { theme: "#a5c83b" },
-  { theme: "#4cc2f1" },
-  { theme: "#fab632" },
-  { theme: "#af8ec1" },
+  { name: "Pyro" ,colour: "#ef7938" },
+  { name: "Cryo" ,colour: "#9fd6e3" },
+  { name: "Anemo" ,colour: "#74c2a8" },
+  { name: "Dendro" ,colour: "#a5c83b" },
+  { name: "Hydro" ,colour: "#4cc2f1" },
+  { name: "Geo" ,colour: "#fab632" },
+  { name: "Electro" ,colour: "#af8ec1" },
 ];
 
 const icons = [
@@ -160,9 +161,9 @@ function insertReactions() {
 }
 
 function insertThemes() {
-  let sql = themes.map((item) => "(?)").join(", ");
-  let params = themes.flatMap((item) => item.theme);
-  db.prepare(`INSERT INTO themes (theme) VALUES ${sql}`).run(params);
+  let sql = themes.map((item) => "(?, ?)").join(", ");
+  let params = themes.map((item) => [item.name, item.colour]);
+  db.prepare(`INSERT INTO themes (name, colour) VALUES ${sql}`).run(...params);
 }
 
 function insertIcons() {
@@ -206,7 +207,7 @@ function insertMessages() {
   }
 }
 
-function startDb() {
+function resetDb() {
   db.transaction(() => {
     dropTables();
   }).apply();
@@ -228,10 +229,6 @@ function startDb() {
   db.transaction(() => {
     insertMessages();
   }).apply();
-}
-
-function resetDB(){
-  startDb();
 }
 
 function newUser() {
@@ -256,4 +253,4 @@ function newUser() {
   }
 }
 
-export { newUser , resetDB};
+export { newUser , resetDb};
