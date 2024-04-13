@@ -99,6 +99,7 @@ function showIcons(element) {
       const icon = document.createElement("img");
       icon.classList.add("icon-select");
       icon.src = x.path;
+      icon.alt = x.name;
       iconselector.appendChild(icon);
       if (g.getSettings().icon_id == i) iconselector.classList.add("active");
       iconselector.style.setProperty(
@@ -127,6 +128,7 @@ function setHeader() {
   const icon = document.createElement("img");
   icon.classList.add("icon-select");
   icon.src = g.getIcons().get(g.getSettings().icon_id).path;
+  icon.alt = g.getIcons().get(g.getSettings().icon_id).name;
   welcomeIcon.style.setProperty(
     "--bgcolour",
     g.getColourFromId(g.getSettings().icon_id)
@@ -176,6 +178,7 @@ function displayMessages() {
     const msgIcon = document.createElement("img");
     msgIcon.classList.add("icon-select");
     msgIcon.src = g.getIcons().get(x.icon_id).path;
+    msgIcon.alt = g.getIcons().get(x.icon_id).name;
 
     //username
     const msgUserName = document.createElement("span");

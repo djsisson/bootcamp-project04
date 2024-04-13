@@ -21,7 +21,7 @@ async function getIcons() {
     if (response.status == 200) {
       const icons = await response.json();
       const newIcons = new Map(
-        icons.map((x) => [x.icon_id, { theme: x.theme_id, path: x.path }])
+        icons.map((x) => [x.icon_id, { theme: x.theme_id, path: x.path, name: x.name }])
       );
       g.setIcons(newIcons);
     }
