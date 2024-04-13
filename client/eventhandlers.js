@@ -16,6 +16,16 @@ function UserSelect(opacity, status) {
   userPanel.style.opacity = opacity;
 }
 
+function e_ClearFilter() {
+  document
+    .querySelector(".clear-current-filter")
+    .addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.querySelector(".clear-filter").style.display = "none";
+      getMessages();
+    });
+}
+
 function e_RandomName() {
   document
     .querySelector(".random-name")
@@ -26,6 +36,7 @@ function e_RandomName() {
 
 function e_CancelUser() {
   document.querySelector(".cancel-user").addEventListener("click", (e) => {
+    e.stopPropagation();
     g.setAll(JSON.parse(localStorage.getItem("GuestBookUser")));
     clearActiveElement();
     g_NameForm.username.placeholder = g.getSettings().username;
@@ -35,14 +46,23 @@ function e_CancelUser() {
   });
 }
 
+function e_BodyClick() {
+  document.body.addEventListener("click", (e) => {
+    UserSelect(0, "none");
+  });
+}
+
 function e_ChangeUser() {
   g_NameForm.addEventListener("submit", async (e) => {
+    e.stopPropagation();
     e.preventDefault();
     g.setUserName(g_NameForm.username.placeholder);
     await r.changeUser().then();
     selectCurrentIcon();
     setHeader();
     UserSelect(0, "none");
+    document.querySelector(".clear-filter").style.display = "none";
+    getMessages();
   });
 }
 
@@ -53,6 +73,7 @@ function e_ElementIcons() {
     element.style.setProperty("--bgcolour", x.colour);
     element.classList.add("element-select");
     element.addEventListener("click", (e) => {
+      e.stopPropagation();
       document
         .querySelector(".element-select.active")
         .classList.toggle("active");
@@ -84,6 +105,7 @@ function showIcons(element) {
         g.getThemes().get(element).colour
       );
       iconselector.addEventListener("click", (e) => {
+        e.stopPropagation();
         g.setUserIcon(i);
         const isActiveEle = document.querySelector(".icon-container.active");
         if (isActiveEle != null) isActiveEle.classList.toggle("active");
@@ -109,6 +131,7 @@ function setHeader() {
     g.getColourFromId(g.getSettings().icon_id)
   );
   icon.addEventListener("click", (e) => {
+    e.stopPropagation();
     UserSelect(1, "flex");
   });
   welcomeIcon.appendChild(icon);
@@ -116,13 +139,17 @@ function setHeader() {
 
 async function getMessages() {
   await r.getMessages().then();
+  displayMessages();
+}
+
+function displayMessages() {
   g_messagePanel.innerHTML = "";
   g.getMessages().forEach((x) => {
     const element = document.createElement("div");
     element.classList.add("message-container");
     element.style.setProperty("--bgcolour", g.getColourFromId(x.icon_id));
-    const msgUserProfile = document.createElement("div")
-    msgUserProfile.classList.add("user-profile")
+    const msgUserProfile = document.createElement("div");
+    msgUserProfile.classList.add("user-profile");
     const msgIconContainer = document.createElement("div");
     msgIconContainer.classList.add("icon-container");
     msgIconContainer.classList.add("msg-icon");
@@ -130,21 +157,27 @@ async function getMessages() {
       "--bgcolour",
       g.getColourFromId(x.icon_id)
     );
+    msgIconContainer.addEventListener("click", async (e) => {
+      e.stopPropagation(e);
+      await r.getMessagesByUser(x.user_id).then();
+      document.querySelector(".clear-filter").style.display = "block";
+      displayMessages();
+    });
     const msgIcon = document.createElement("img");
     msgIcon.classList.add("icon-select");
     msgIcon.src = g.getIcons().get(x.icon_id).path;
     msgIconContainer.appendChild(msgIcon);
-    msgUserProfile.appendChild(msgIconContainer)
+    msgUserProfile.appendChild(msgIconContainer);
     element.appendChild(msgUserProfile);
-    const msgUserName = document.createElement("span")
-    msgUserName.classList.add("msg-UserName")
-    msgUserName.textContent = x.username
+    const msgUserName = document.createElement("span");
+    msgUserName.classList.add("msg-UserName");
+    msgUserName.textContent = x.username;
     msgUserProfile.appendChild(msgUserName);
     const newMessage = document.createElement("div");
-    newMessage.classList.add("message-content")
+    newMessage.classList.add("message-content");
     newMessage.textContent = x.message;
     element.appendChild(newMessage);
-  g_messagePanel.appendChild(element);
+    g_messagePanel.appendChild(element);
   });
 }
 
@@ -153,6 +186,8 @@ function setEvents() {
   e_ChangeUser();
   e_ElementIcons();
   e_RandomName();
+  e_BodyClick();
+  e_ClearFilter();
   selectCurrentIcon();
   g_NameForm.username.placeholder = g.getSettings().username;
 }

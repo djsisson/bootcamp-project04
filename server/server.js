@@ -125,7 +125,7 @@ app.get("/messages/:userid(\\d+)/:offset(\\d+)/:count(\\d+)", (req, res) => {
 
 app.get("/messages/user/:userid(\\d+)", (req, res) => {
   try {
-    const result = query.getUser(req.params.userid);
+    const result = query.messagesByUser(req.params.userid);
     if (result.length == 0) {
       res.status(400).send();
     } else {

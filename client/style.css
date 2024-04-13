@@ -210,3 +210,10 @@ h1 {
   bottom: 0;
   font-size: 16px;
 }
+
+.form-post{
+  padding: 10px 0;
+}
+.clear-filter{
+  display: none;
+}

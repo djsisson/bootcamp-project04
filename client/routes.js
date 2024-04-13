@@ -78,10 +78,9 @@ async function changeUser() {
       }&iconid=${g.getSettings().icon_id}`,
       { method: "PUT" }
     );
-    console.log(response)
     if (response.status == 200) {
       const newName = await response.json();
-      
+
       g.saveSettings();
       return newName;
     }
@@ -90,12 +89,42 @@ async function changeUser() {
   }
 }
 
-async function getMessages(){
+async function getMessages() {
   try {
-    const response = await fetch(`${g.db}messages/${g.getSettings().user_id}/0/50`);
+    const response = await fetch(
+      `${g.db}messages/${g.getSettings().user_id}/0/50`
+    );
     if (response.status == 200) {
       const messages = await response.json();
       g.setMessages(messages);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getMessagesByUser(user_id) {
+  try {
+    const response = await fetch(`${g.db}messages/user/${user_id}`);
+    if (response.status == 200) {
+      const messages = await response.json();
+      g.setMessages(messages);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function postNewMessage(msg) {
+  try {
+    const response = await fetch(`${g.db}messages/${g.getSettings().user_id}`, {
+      method: "POST",
+      body: JSON.stringify({ message: msg }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (response.status == 200) {
+      const newUser = await response.json();
+      g.setAll(newUser);
     }
   } catch (error) {
     console.log(error);
@@ -109,5 +138,7 @@ export {
   getNewUser,
   getNewName,
   changeUser,
-  getMessages
+  getMessages,
+  getMessagesByUser,
+  postNewMessage,
 };
