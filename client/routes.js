@@ -90,6 +90,18 @@ async function changeUser() {
   }
 }
 
+async function getMessages(){
+  try {
+    const response = await fetch(`${g.db}messages/${g.getSettings().user_id}/0/50`);
+    if (response.status == 200) {
+      const messages = await response.json();
+      g.setMessages(messages);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
   getThemes,
   getIcons,
@@ -97,4 +109,5 @@ export {
   getNewUser,
   getNewName,
   changeUser,
+  getMessages
 };

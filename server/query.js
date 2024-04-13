@@ -25,7 +25,7 @@ function getAllIcons() {
   }
 }
 
-
+//Not Needed 
 function getAllIconsJson() {
   try {
     const icons = db
@@ -110,7 +110,7 @@ function updateUser(userid) {
 function messagesByUser(userid) {
   try {
     const msg = db
-      .prepare("SELECT * FROM messages WHERE user_id = (?)")
+      .prepare(`SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.user_id = (?) ORDER BY created DESC`)
       .all(userid);
     return msg;
   } catch (error) {
@@ -121,7 +121,7 @@ function messagesByUser(userid) {
 function getMessageById(msgId) {
   try {
     const msg = db
-      .prepare("SELECT * FROM messages WHERE msg_id = (?)")
+      .prepare(`SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.msg_id = (?) ORDER BY created DESC`)
       .all(msgId);
     return msg;
   } catch (error) {
@@ -151,13 +151,13 @@ function newMessage(userid, message) {
 function getMessages(userid = 0, page = 0, count = 10) {
   try {
     if (page==0) page = Date.now()
-    const newMessageFromUser = `SELECT * FROM messages WHERE user_id = (?) ORDER BY created DESC LIMIT 1`;
+    const newMessageFromUser = `SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.user_id = (?) ORDER BY created DESC LIMIT 1`;
     const message = db.prepare(`${newMessageFromUser}`).all(userid);
     let msgid = 0;
     if (message.length != 0) msgid = message[0].msg_id;
     const newestMessages = db
       .prepare(
-        `SELECT * FROM messages WHERE msg_id != (?) AND created < (?) ORDER BY created DESC LIMIT (?)`
+        `SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.msg_id != (?) AND m.created < (?) ORDER BY created DESC LIMIT (?)`
       )
       .all(msgid,page ,count - Boolean(msgid));
     return message.concat(newestMessages);

@@ -1,7 +1,8 @@
 const db = import.meta.env.VITE_DATABASE_URL;
 let themes = [];
 let icons = [];
-let settings = {user_id: 0};
+let messages = [];
+let settings = { user_id: 0 };
 
 function getThemes() {
   return themes;
@@ -23,26 +24,47 @@ function getSettings() {
   return settings;
 }
 
-function setUserName(name){
-settings.username = name
+function setUserName(name) {
+  settings.username = name;
 }
 
-function setUserIcon(icon){
-    settings.icon_id = icon
+function setUserIcon(icon) {
+  settings.icon_id = icon;
 }
 
-function setUserId(id){
-    settings.user_id = id
+function setUserId(id) {
+  settings.user_id = id;
 }
 
-function setAll(newSettings){
- settings = newSettings
- saveSettings()
+function setAll(newSettings) {
+  settings = newSettings;
+  saveSettings();
 }
-
 
 function saveSettings() {
   localStorage.setItem("GuestBookUser", JSON.stringify(settings));
 }
 
-export { db, getThemes, setThemes, getIcons, setIcons, getSettings, saveSettings, setUserName, setUserIcon , setUserId, setAll};
+function getMessages() {
+  return messages;
+}
+
+function setMessages(newMessages) {
+  messages = newMessages;
+}
+
+export {
+  db,
+  getThemes,
+  setThemes,
+  getIcons,
+  setIcons,
+  getSettings,
+  saveSettings,
+  setUserName,
+  setUserIcon,
+  setUserId,
+  setAll,
+  getMessages,
+  setMessages,
+};
