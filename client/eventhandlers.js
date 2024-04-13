@@ -153,6 +153,7 @@ function displayMessages() {
     const msgIconContainer = document.createElement("div");
     msgIconContainer.classList.add("icon-container");
     msgIconContainer.classList.add("msg-icon");
+    msgIconContainer.title = `Click to Filter Messages by ${x.username}`
     msgIconContainer.style.setProperty(
       "--bgcolour",
       g.getColourFromId(x.icon_id)
