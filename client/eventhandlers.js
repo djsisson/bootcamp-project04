@@ -30,6 +30,7 @@ function e_RandomName() {
   document
     .querySelector(".random-name")
     .addEventListener("click", async (e) => {
+      e.stopPropagation();
       g_NameForm.username.placeholder = await r.getNewName().then();
     });
 }
