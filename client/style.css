@@ -2,27 +2,34 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 1.125rem;
   line-height: 1.6;
 }
 
-svg,img{
-  display: block
+svg,
+img {
+  display: block;
 }
 
-html{
+button {
+  cursor: pointer;
+}
+
+html {
   color-scheme: light dark;
 }
 
-body{
-    width: 100svw;
-    overflow-x: clip;
+body {
+  width: 100svw;
+  overflow-x: clip;
 }
 
 .icon-wrapper {
   display: flex;
   padding: 1rem;
+  gap: 1rem;
 }
 
 .element-panel {
@@ -39,133 +46,167 @@ body{
   align-content: center;
   justify-content: center;
   padding: 1rem;
+  border-left: 1px solid
 }
 
 .element-select {
   background-repeat: no-repeat;
-  width: 10svw;
+  width: min(100px, 10svw);
   aspect-ratio: 1;
   filter: saturate(0.8);
   --bgcolour: black;
 }
-.element-select:hover, .element-select.active {
+.element-select:hover,
+.element-select.active {
   filter: saturate(2);
   cursor: pointer;
   filter: drop-shadow(10px 10px 4px var(--bgcolour));
 }
-
 
 .element-panel:has(.element-select:hover) .element-select:not(:hover) {
   filter: grayscale(100%);
 }
 
 .icon-select {
-  width: 20svw;
+  width: min(200px, 20svw);
   aspect-ratio: 1;
   border-radius: 50%;
   z-index: 15;
   position: relative;
-  filter: saturate(0.8)
+  filter: saturate(0.8);
 }
 
-.icon-select:hover, .icon-container.active:not(:hover){
-    cursor: pointer;
-    filter: saturate(2);
+.icon-select:hover,
+.icon-container.active:not(:hover) {
+  cursor: pointer;
+  filter: saturate(2);
 }
 
+.icon-panel:has(.icon-select:hover) .icon-container:not(:hover) {
+  filter: grayscale(100%);
+}
 
-
-  .icon-panel:has(.icon-select:hover) .icon-container:not(:hover) {
-    filter: grayscale(100%);
-  }
-
-.icon-container{
-    position: relative;
-    --bgcolour: white;
+.icon-container {
+  position: relative;
+  --bgcolour: white;
 }
 
 .icon-container::after {
-    position: absolute;
-    content: " ";
-    inset: 0;
-    opacity: 0;
-    z-index: 13;
-    border-radius: 50%;
-    width: 100%;
-    transition: opacity 1s ease;
-    background-image: conic-gradient(from 45deg, var(--bgcolour), white, var(--bgcolour));
-  }
-  
-  .icon-container::before {
-    position: absolute;
-    content: " ";
-    inset: 0;
-    opacity: 0;
-    z-index: 13;
-    border-radius: 50%;
-    width: 100%;
-    background-image: conic-gradient(from 135deg, var(--bgcolour), white, var(--bgcolour));
-    opacity: 1;
-    transition: opacity 1s ease;
-  }
-  
-  .icon-container:hover::after , .icon-container.active::after{
-    opacity: 1;
-    filter: drop-shadow(10px 10px 4px var(--bgcolour));
-  }
-
-  .name-wrapper{
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    transition: opacity 0.5s;
-    position: absolute;
-    background-color: light-dark(white, black);
-  }
-  .name-panel{
-    padding: 1rem;
-  }
-
-  .change-name {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    gap: 1rem;
-    
-  }
-
-  .change-name * {
-    padding: 10px;
-  }
-
-.user-name{
-    font-size: large;
-    flex: 1;
+  position: absolute;
+  content: " ";
+  inset: 0;
+  opacity: 0;
+  z-index: 13;
+  border-radius: 50%;
+  width: 100%;
+  transition: opacity 1s ease;
+  background-image: conic-gradient(
+    from 45deg,
+    var(--bgcolour),
+    white,
+    var(--bgcolour)
+  );
 }
 
-header{
+.icon-container::before {
+  position: absolute;
+  content: " ";
+  inset: 0;
+  opacity: 0;
+  z-index: 13;
+  border-radius: 50%;
+  width: 100%;
+  background-image: conic-gradient(
+    from 135deg,
+    var(--bgcolour),
+    white,
+    var(--bgcolour)
+  );
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+.icon-container:hover::after,
+.icon-container.active::after {
+  opacity: 1;
+  filter: drop-shadow(10px 10px 4px var(--bgcolour));
+}
+
+.name-wrapper {
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 1.5s;
+  background-color: light-dark(white, black);
+  justify-content: center;
+  width: min(65ch, 100% - 4rem);
+  margin-inline: auto;
+}
+.name-panel {
+  padding: 1rem;
+  border-bottom: 1px solid;
+}
+
+.change-name {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.change-name * {
+  padding: 10px;
+}
+
+.user-name {
+  font-size: large;
+  flex: 1;
+}
+
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 30px;
+  padding: 10px 30px;
+  border-bottom: 1px solid
 }
 
-main{
+main {
   width: min(65ch, 100% - 4rem);
-  margin-inline: auto
+  margin-inline: auto;
 }
 
-.message-wrapper{
+.message-wrapper {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  padding: 10px;
 }
-.header-icon{
+.header-icon {
   position: relative;
   flex-shrink: 0;
+  scale: 75%;
 }
 
-h1{
+h1 {
   font-size: 3rem;
+}
+
+.message-container{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid
+}
+.msg-icon{
+  scale: 50%
+}
+.user-profile{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.msg-UserName{
+  position: absolute;
+  bottom: 0;
+  font-size: 16px;
 }

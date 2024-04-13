@@ -4,7 +4,7 @@ import * as g from "./globals.js";
 const g_ElePanel = document.querySelector(".element-panel");
 const g_IconPanel = document.querySelector(".icon-panel");
 const g_NameForm = document.querySelector(".change-name");
-const g_messagePanel = document.querySelector(".message-wrapper")
+const g_messagePanel = document.querySelector(".message-wrapper");
 
 function clearActiveElement() {
   document.querySelector(".element-select.active").classList.toggle("active");
@@ -12,7 +12,7 @@ function clearActiveElement() {
 
 function UserSelect(opacity, status) {
   const userPanel = document.querySelector(".name-wrapper");
-  userPanel.style.visibility = status;
+  userPanel.style.display = status;
   userPanel.style.opacity = opacity;
 }
 
@@ -31,7 +31,7 @@ function e_CancelUser() {
     g_NameForm.username.placeholder = g.getSettings().username;
     selectCurrentIcon();
     setHeader();
-    UserSelect(0,"hidden");
+    UserSelect(0, "none");
   });
 }
 
@@ -42,7 +42,7 @@ function e_ChangeUser() {
     await r.changeUser().then();
     selectCurrentIcon();
     setHeader();
-    UserSelect(0,"hidden");
+    UserSelect(0, "none");
   });
 }
 
@@ -104,32 +104,48 @@ function setHeader() {
   const icon = document.createElement("img");
   icon.classList.add("icon-select");
   icon.src = g.getIcons().get(g.getSettings().icon_id).path;
-  welcomeIcon.style.setProperty("--bgcolour", g.getThemes().get((g.getIcons().get(g.getSettings().icon_id).theme)).colour);
+  welcomeIcon.style.setProperty(
+    "--bgcolour",
+    g.getColourFromId(g.getSettings().icon_id)
+  );
   icon.addEventListener("click", (e) => {
-
-    UserSelect(1,"visible");
-  })
+    UserSelect(1, "flex");
+  });
   welcomeIcon.appendChild(icon);
 }
 
-async function getMessages(){
+async function getMessages() {
   await r.getMessages().then();
-  g_messagePanel.innerHTML=""
+  g_messagePanel.innerHTML = "";
   g.getMessages().forEach((x) => {
     const element = document.createElement("div");
-    element.textContent = x.message
-    // element.style.backgroundImage = `url('${x.path}')`;
-    // element.style.setProperty("--bgcolour", x.colour);
-    // element.classList.add("element-select");
-    // element.addEventListener("click", (e) => {
-    //   document
-    //     .querySelector(".element-select.active")
-    //     .classList.toggle("active");
-    //   e.target.classList.toggle("active");
-    //   showIcons(i);
-    // });
-    g_messagePanel.appendChild(element);
-  })
+    element.classList.add("message-container");
+    element.style.setProperty("--bgcolour", g.getColourFromId(x.icon_id));
+    const msgUserProfile = document.createElement("div")
+    msgUserProfile.classList.add("user-profile")
+    const msgIconContainer = document.createElement("div");
+    msgIconContainer.classList.add("icon-container");
+    msgIconContainer.classList.add("msg-icon");
+    msgIconContainer.style.setProperty(
+      "--bgcolour",
+      g.getColourFromId(x.icon_id)
+    );
+    const msgIcon = document.createElement("img");
+    msgIcon.classList.add("icon-select");
+    msgIcon.src = g.getIcons().get(x.icon_id).path;
+    msgIconContainer.appendChild(msgIcon);
+    msgUserProfile.appendChild(msgIconContainer)
+    element.appendChild(msgUserProfile);
+    const msgUserName = document.createElement("span")
+    msgUserName.classList.add("msg-UserName")
+    msgUserName.textContent = x.username
+    msgUserProfile.appendChild(msgUserName);
+    const newMessage = document.createElement("div");
+    newMessage.classList.add("message-content")
+    newMessage.textContent = x.message;
+    element.appendChild(newMessage);
+  g_messagePanel.appendChild(element);
+  });
 }
 
 function setEvents() {

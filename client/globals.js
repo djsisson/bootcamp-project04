@@ -53,6 +53,10 @@ function setMessages(newMessages) {
   messages = newMessages;
 }
 
+function getColourFromId(iconId){
+  return themes.get((icons.get(iconId).theme)).colour
+}
+
 export {
   db,
   getThemes,
@@ -67,4 +71,5 @@ export {
   setAll,
   getMessages,
   setMessages,
+  getColourFromId
 };
