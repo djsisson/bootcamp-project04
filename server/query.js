@@ -18,6 +18,16 @@ function getRandomName(){
 
 function getAllIcons() {
   try {
+    const icons = db.prepare("SELECT * FROM icons").all();
+    return icons;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+function getAllIconsJson() {
+  try {
     const icons = db
       .prepare(
         `SELECT t.*, json_group_array(json_object('id', i.icon_id, 'name', i.name, 'path', i.path)) Characters FROM icons as i INNER JOIN themes AS t ON i.theme_id = t.theme_id GROUP BY i.theme_id`
