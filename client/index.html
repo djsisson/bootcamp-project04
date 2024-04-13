@@ -41,15 +41,23 @@
       <div class="post-wrapper">
         <form action="" class="form-post">
           <div
-            class="input"
+            name="msgcontent"
+            class="post-input"
             role="textbox"
+            id="msgcontent"
             contenteditable
-          >Post a comment...</div>
-          <button class="comment-post">Comment</button
-          ><button class="cancel-post">Cancel</button>
+          >
+            Post a comment...
+          </div>
+          <div class="post-buttons">
+            <button type="submit" class="comment-post">Comment</button
+            ><button type="button" class="cancel-post">Cancel</button>
+          </div>
         </form>
       </div>
-      <div class="clear-filter"><button class="clear-current-filter">Clear Filter</button></div>
+      <div class="clear-filter">
+        <button class="clear-current-filter">Clear Filter</button>
+      </div>
       <div class="message-wrapper"></div>
     </main>
   </body>

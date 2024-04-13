@@ -123,8 +123,18 @@ async function postNewMessage(msg) {
       headers: { "Content-Type": "application/json" },
     });
     if (response.status == 200) {
-      const newUser = await response.json();
-      g.setAll(newUser);
+      return true;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function delMessage(msgid) {
+  try {
+    const response = await fetch(`${g.db}messages/${msgid}`, {method: "DELETE"});
+    if (response.status == 200) {
+      return true;
     }
   } catch (error) {
     console.log(error);
@@ -141,4 +151,5 @@ export {
   getMessages,
   getMessagesByUser,
   postNewMessage,
+  delMessage,
 };

@@ -145,15 +145,21 @@ async function getMessages() {
 function displayMessages() {
   g_messagePanel.innerHTML = "";
   g.getMessages().forEach((x) => {
+
+    //message container
     const element = document.createElement("div");
     element.classList.add("message-container");
     element.style.setProperty("--bgcolour", g.getColourFromId(x.icon_id));
+
+    //user profile
     const msgUserProfile = document.createElement("div");
     msgUserProfile.classList.add("user-profile");
+
+    //icon container
     const msgIconContainer = document.createElement("div");
     msgIconContainer.classList.add("icon-container");
     msgIconContainer.classList.add("msg-icon");
-    msgIconContainer.title = `Click to Filter Messages by ${x.username}`
+    msgIconContainer.title = `Click to Filter Messages by ${x.username}`;
     msgIconContainer.style.setProperty(
       "--bgcolour",
       g.getColourFromId(x.icon_id)
@@ -164,21 +170,94 @@ function displayMessages() {
       document.querySelector(".clear-filter").style.display = "block";
       displayMessages();
     });
+    
+    //icon
     const msgIcon = document.createElement("img");
     msgIcon.classList.add("icon-select");
     msgIcon.src = g.getIcons().get(x.icon_id).path;
-    msgIconContainer.appendChild(msgIcon);
-    msgUserProfile.appendChild(msgIconContainer);
-    element.appendChild(msgUserProfile);
+
+    //username
     const msgUserName = document.createElement("span");
     msgUserName.classList.add("msg-UserName");
     msgUserName.textContent = x.username;
-    msgUserProfile.appendChild(msgUserName);
+
+    //message
     const newMessage = document.createElement("div");
     newMessage.classList.add("message-content");
     newMessage.textContent = x.message;
+
+    //delete button if owner of message
+    if (g.getSettings().user_id == x.user_id) {
+      const delButton = document.createElement("button");
+      delButton.textContent="\u{1F5D1}"
+      delButton.classList.add("delete-message")
+      delButton.addEventListener("click", async (e) => {
+        e.stopPropagation()
+        if (await r.delMessage(x.msg_id)==true) {
+          getMessages()
+        }
+      })
+      element.appendChild(delButton)
+    }
+
+    //append all
+    msgIconContainer.appendChild(msgIcon);
+    msgUserProfile.appendChild(msgIconContainer);
+    element.appendChild(msgUserProfile);
+    msgUserProfile.appendChild(msgUserName);
     element.appendChild(newMessage);
+    
     g_messagePanel.appendChild(element);
+  });
+}
+
+function e_focusPost() {
+  const formPostElement = document.querySelector(".post-input");
+  formPostElement.CurrentlyPosting = false;
+  formPostElement.addEventListener("focusin", (e) => {
+    document.querySelector(".post-buttons").style.display = "flex";
+    if (e.target.CurrentlyPosting == false) {
+      e.target.textContent = "";
+    } else {
+      const range = document.createRange();
+      range.selectNodeContents(e.target);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  });
+  formPostElement.addEventListener("keydown", (e) => {
+    if (e.target.textContent.length > 100) {
+      e.preventDefault();
+    }
+  });
+  formPostElement.addEventListener("input", (e) => {
+    formPostElement.CurrentlyPosting = true;
+  });
+}
+
+function e_cancelPost() {
+  document.querySelector(".cancel-post").addEventListener("click", (e) => {
+    e.stopPropagation();
+    const formPostElement = document.querySelector(".post-input");
+    console.log("kkkk");
+    formPostElement.textContent = "Post a comment...";
+    formPostElement.CurrentlyPosting = false;
+    document.querySelector(".post-buttons").style.display = "none";
+  });
+}
+
+async function e_postComment() {
+  document.querySelector(".form-post").addEventListener("submit", async (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const formPostElement = document.querySelector(".post-input");
+    if (await r.postNewMessage(formPostElement.textContent).then()) {
+      formPostElement.textContent = "Post a comment...";
+      formPostElement.CurrentlyPosting = false;
+      document.querySelector(".post-buttons").style.display = "none";
+      getMessages();
+    }
   });
 }
 
@@ -189,6 +268,9 @@ function setEvents() {
   e_RandomName();
   e_BodyClick();
   e_ClearFilter();
+  e_focusPost();
+  e_cancelPost();
+  e_postComment();
   selectCurrentIcon();
   g_NameForm.username.placeholder = g.getSettings().username;
 }
