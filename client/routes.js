@@ -110,7 +110,7 @@ async function changeUser() {
 async function getMessages() {
   try {
     const response = await fetch(
-      `${g.db}messages/${g.getSettings().user_id}/0/50`
+      `${g.db}messages/${g.getSettings().user_id}/0/10`
     );
     if (response.status == 200) {
       const messages = await response.json();
