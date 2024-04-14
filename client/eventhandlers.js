@@ -181,9 +181,13 @@ function createMessage(x) {
   );
   msgIconContainer.addEventListener("click", async (e) => {
     e.stopPropagation(e);
-    await r.getMessagesByUser(x.user_id).then();
     document.querySelector(".clear-filter").style.display = "block";
-    displayMessages();
+    await r.getMessagesByUser(x.user_id).then(() => {
+      displayMessages();
+      getReactions();
+    });
+    
+    
   });
 
   //icon
