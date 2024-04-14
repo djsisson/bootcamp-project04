@@ -69,7 +69,7 @@ body {
 }
 
 .icon-select {
-  width: min(200px, 20svw);
+  width: min(180px, 20svw);
   aspect-ratio: 1;
   border-radius: 50%;
   z-index: 15;
@@ -165,6 +165,14 @@ body {
   display: flex;
   gap: 0.5rem
 }
+.button-wrapper button{
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+}
+.button-wrapper button:hover{
+  background-color: grey;
+}
 
 .user-name {
   font-size: large;
@@ -194,7 +202,7 @@ main {
 .header-icon {
   position: relative;
   flex-shrink: 0;
-  scale: 75%;
+  scale: 80%;
 }
 
 h1 {
@@ -212,6 +220,20 @@ h1 {
   
 }
 
+.message-reactions{
+  display: grid;
+  grid-template-columns: repeat( 20, 1fr);
+  grid-template-rows: 1fr;
+  scale: 80%
+}
+.message-reactions label:hover{
+  cursor: pointer;
+}
+
+.msg-radio:hover{
+  cursor: pointer;
+}
+
 .delete-message{
   position: absolute;
   top: 10px;
@@ -226,14 +248,29 @@ h1 {
 }
 
 .msg-icon {
-  scale: 75%;
+  scale: 80%;
 }
 .user-profile {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-basis: 20%;
 }
+
+.message-content-wrapper{
+  flex-basis: 75%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+.message-content{
+  user-select: none;
+}
+
+
 .msg-UserName {
   position: relative;
   text-align: center;

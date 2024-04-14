@@ -142,76 +142,125 @@ function setHeader() {
 
 async function getMessages() {
   await r.getMessages().then();
+  await getReactions();
+}
+
+async function getReactions() {
+  let newReactions = new Map();
+  for (const msg of g.getMessages()) {
+    const msgreactions = await r.getMsgReactions(msg.msg_id);
+    newReactions.set(msg.msg_id, msgreactions);
+  }
+  g.setReactions(newReactions);
   displayMessages();
+  return newReactions;
+}
+
+function createMessage(x) {
+  //message container
+  const element = document.createElement("div");
+  element.classList.add("message-container");
+  element.style.setProperty("--bgcolour", g.getColourFromId(x.icon_id));
+
+  //user profile
+  const msgUserProfile = document.createElement("div");
+  msgUserProfile.classList.add("user-profile");
+
+  //icon container
+  const msgIconContainer = document.createElement("div");
+  msgIconContainer.classList.add("icon-container");
+  msgIconContainer.classList.add("msg-icon");
+  msgIconContainer.title = `Click to Filter Messages by ${x.username}`;
+  msgIconContainer.style.setProperty(
+    "--bgcolour",
+    g.getColourFromId(x.icon_id)
+  );
+  msgIconContainer.addEventListener("click", async (e) => {
+    e.stopPropagation(e);
+    await r.getMessagesByUser(x.user_id).then();
+    document.querySelector(".clear-filter").style.display = "block";
+    displayMessages();
+  });
+
+  //icon
+  const msgIcon = document.createElement("img");
+  msgIcon.classList.add("icon-select");
+  msgIcon.src = g.getIcons().get(x.icon_id).path;
+  msgIcon.alt = g.getIcons().get(x.icon_id).name;
+
+  //username
+  const msgUserName = document.createElement("span");
+  msgUserName.classList.add("msg-UserName");
+  msgUserName.textContent = x.username;
+
+  //message content wrapper
+  const newMessageWrapper = document.createElement("div");
+  newMessageWrapper.classList.add("message-content-wrapper");
+
+  //message content
+  const newMessage = document.createElement("div");
+  newMessage.classList.add("message-content");
+  newMessage.textContent = x.message;
+
+  //message reactions
+
+  const newReactions = document.createElement("div");
+  newReactions.classList.add("message-reactions");
+
+  g.getBaseReactions().forEach((r) => {
+    
+    const newRadio = document.createElement("input");
+    newRadio.type = "radio";
+    newRadio.name = `${x.msg_id}-reaction`;
+    newRadio.id = `${x.msg_id}-reaction-${r}`;
+    newRadio.classList.add("msg-radio");
+    const newLabel = document.createElement("label");
+    newLabel.htmlFor = `${x.msg_id}-reaction-${r}`;
+    const charCode = parseInt(r, 16);
+    newLabel.textContent = `${String.fromCodePoint(charCode)}`;
+    const newCount = document.createElement("span");
+    const found = g.getReactions().get(x.msg_id).findIndex((j) => (j.code == r))
+    if (found != -1) {
+      newCount.textContent = g.getReactions().get(x.msg_id)[found].count
+    }
+    newCount.classList.add(`msg${x.msg_id}-${charCode}`);
+    const radioGap = document.createElement("span")
+    newReactions.appendChild(newRadio);
+    newReactions.appendChild(newLabel);
+    newReactions.appendChild(newCount);
+    newReactions.appendChild(radioGap);
+  });
+
+  //delete button if owner of message
+  if (g.getSettings().user_id == x.user_id) {
+    const delButton = document.createElement("button");
+    delButton.textContent = "\u{1F5D1}";
+    delButton.classList.add("delete-message");
+    delButton.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if ((await r.delMessage(x.msg_id)) == true) {
+        getMessages();
+      }
+    });
+    element.appendChild(delButton);
+  }
+
+  //append all
+  msgIconContainer.appendChild(msgIcon);
+  msgUserProfile.appendChild(msgIconContainer);
+  element.appendChild(msgUserProfile);
+  msgUserProfile.appendChild(msgUserName);
+  newMessageWrapper.appendChild(newMessage);
+  newMessageWrapper.appendChild(newReactions);
+  element.appendChild(newMessageWrapper);
+
+  return element;
 }
 
 function displayMessages() {
   g_messagePanel.innerHTML = "";
-  g.getMessages().forEach((x) => {
-
-    //message container
-    const element = document.createElement("div");
-    element.classList.add("message-container");
-    element.style.setProperty("--bgcolour", g.getColourFromId(x.icon_id));
-
-    //user profile
-    const msgUserProfile = document.createElement("div");
-    msgUserProfile.classList.add("user-profile");
-
-    //icon container
-    const msgIconContainer = document.createElement("div");
-    msgIconContainer.classList.add("icon-container");
-    msgIconContainer.classList.add("msg-icon");
-    msgIconContainer.title = `Click to Filter Messages by ${x.username}`;
-    msgIconContainer.style.setProperty(
-      "--bgcolour",
-      g.getColourFromId(x.icon_id)
-    );
-    msgIconContainer.addEventListener("click", async (e) => {
-      e.stopPropagation(e);
-      await r.getMessagesByUser(x.user_id).then();
-      document.querySelector(".clear-filter").style.display = "block";
-      displayMessages();
-    });
-    
-    //icon
-    const msgIcon = document.createElement("img");
-    msgIcon.classList.add("icon-select");
-    msgIcon.src = g.getIcons().get(x.icon_id).path;
-    msgIcon.alt = g.getIcons().get(x.icon_id).name;
-
-    //username
-    const msgUserName = document.createElement("span");
-    msgUserName.classList.add("msg-UserName");
-    msgUserName.textContent = x.username;
-
-    //message
-    const newMessage = document.createElement("div");
-    newMessage.classList.add("message-content");
-    newMessage.textContent = x.message;
-
-    //delete button if owner of message
-    if (g.getSettings().user_id == x.user_id) {
-      const delButton = document.createElement("button");
-      delButton.textContent="\u{1F5D1}"
-      delButton.classList.add("delete-message")
-      delButton.addEventListener("click", async (e) => {
-        e.stopPropagation()
-        if (await r.delMessage(x.msg_id)==true) {
-          getMessages()
-        }
-      })
-      element.appendChild(delButton)
-    }
-
-    //append all
-    msgIconContainer.appendChild(msgIcon);
-    msgUserProfile.appendChild(msgIconContainer);
-    element.appendChild(msgUserProfile);
-    msgUserProfile.appendChild(msgUserName);
-    element.appendChild(newMessage);
-    
-    g_messagePanel.appendChild(element);
+  g.getMessages().forEach((x, i) => {
+    g_messagePanel.appendChild(createMessage(x));
   });
 }
 

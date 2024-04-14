@@ -15,13 +15,29 @@ async function getThemes() {
   }
 }
 
+async function getBaseReactions() {
+  try {
+    const response = await fetch(`${g.db}reactions`);
+    if (response.status == 200) {
+      const reactions = await response.json();
+      const newReactions = reactions.map((x) => x.code);
+      g.setBaseReactions(newReactions);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function getIcons() {
   try {
     const response = await fetch(`${g.db}icons`);
     if (response.status == 200) {
       const icons = await response.json();
       const newIcons = new Map(
-        icons.map((x) => [x.icon_id, { theme: x.theme_id, path: x.path, name: x.name }])
+        icons.map((x) => [
+          x.icon_id,
+          { theme: x.theme_id, path: x.path, name: x.name },
+        ])
       );
       g.setIcons(newIcons);
     }
@@ -132,9 +148,23 @@ async function postNewMessage(msg) {
 
 async function delMessage(msgid) {
   try {
-    const response = await fetch(`${g.db}messages/${msgid}`, {method: "DELETE"});
+    const response = await fetch(`${g.db}messages/${msgid}`, {
+      method: "DELETE",
+    });
     if (response.status == 200) {
       return true;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getMsgReactions(msgid) {
+  try {
+    const response = await fetch(`${g.db}reaction/${msgid}`);
+    if (response.status == 200) {
+      const reactions = await response.json();
+      return reactions;
     }
   } catch (error) {
     console.log(error);
@@ -152,4 +182,6 @@ export {
   getMessagesByUser,
   postNewMessage,
   delMessage,
+  getMsgReactions,
+  getBaseReactions,
 };

@@ -8,7 +8,8 @@ function createTables() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS reactions (
         reaction_id INTEGER PRIMARY KEY,
-        reaction TEXT NOT NULL UNIQUE
+        reaction TEXT NOT NULL UNIQUE,
+        code TEXT NOT NULL UNIQUE
     )
 `);
 
@@ -55,32 +56,38 @@ function createTables() {
     )
 `);
 
-  // db.exec(`
-  //     CREATE TABLE IF NOT EXISTS message_reaction (
-  //         id INTEGER PRIMARY KEY,
-  //         msg_id INTEGER CASCADE REFERENCES messages,
-  //         reaction_id INTEGER CASCADE REFERENCES reactions,
-  //         user_id INTEGER CASCADE REFERENCES users,
-  //         UNIQUE (msg_id, reaction_id, user_id)
-  //     )
-  // `);
+  db.exec(`
+      CREATE TABLE IF NOT EXISTS message_reaction (
+          id INTEGER PRIMARY KEY,
+          msg_id INTEGER REFERENCES messages (msg_id)
+              ON UPDATE CASCADE
+              ON DELETE CASCADE,
+          reaction_id INTEGER REFERENCES reactions (reaction_id)
+              ON UPDATE CASCADE
+              ON DELETE CASCADE,
+          user_id INTEGER CASCADE REFERENCES users (user_id)
+              ON UPDATE CASCADE
+              ON DELETE CASCADE,
+          UNIQUE (msg_id, user_id)
+      )
+  `);
 }
 
 function dropTables() {
+  db.exec(`DROP TABLE IF EXISTS message_reaction`);
   db.exec(`DROP TABLE IF EXISTS messages`);
   db.exec(`DROP TABLE IF EXISTS users`);
   db.exec(`DROP TABLE IF EXISTS icons`);
   db.exec(`DROP TABLE IF EXISTS themes`);
   db.exec(`DROP TABLE IF EXISTS reactions`);
-  db.exec(`DROP TABLE IF EXISTS message_reaction`);
 }
 
 const reactions = [
-  { reaction: "Happy" },
-  { reaction: "Sad" },
-  { reaction: "Angry" },
-  { reaction: "Heart" },
-  { reaction: "Thumbs Up" },
+  { reaction: "Happy", code: "1F600" },
+  { reaction: "Sad", code: "1F641" },
+  { reaction: "Angry", code: "1F621" },
+  { reaction: "Heart", code: "1F496 " },
+  { reaction: "Thumbs Up", code: "1F44D " },
 ];
 
 const themes = [
@@ -95,8 +102,16 @@ const themes = [
 
 const icons = [
   { name: "Albedo", path: "./assets/icons/albedo_icon.webp", theme_id: 6 },
-  { name: "Alhaitham", path: "./assets/icons/alhaitham_icon.webp", theme_id: 4 },
-  { name: "Arataki", path: "./assets/icons/arataki_Itto_icon.webp", theme_id: 6 },
+  {
+    name: "Alhaitham",
+    path: "./assets/icons/alhaitham_icon.webp",
+    theme_id: 4,
+  },
+  {
+    name: "Arataki",
+    path: "./assets/icons/arataki_Itto_icon.webp",
+    theme_id: 6,
+  },
   { name: "Baizhu", path: "./assets/icons/baizhu_icon.webp", theme_id: 4 },
   { name: "Chiori", path: "./assets/icons/chiori_icon.webp", theme_id: 6 },
   { name: "Cyno", path: "./assets/icons/cyno_icon.webp", theme_id: 7 },
@@ -128,7 +143,11 @@ const icons = [
   { name: "Mona", path: "./assets/icons/mona_icon.webp", theme_id: 5 },
   { name: "Nahida", path: "./assets/icons/nahida_icon.webp", theme_id: 4 },
   { name: "Navia", path: "./assets/icons/navia_icon.webp", theme_id: 6 },
-  { name: "Neuvillette", path: "./assets/icons/neuvillette_icon.webp", theme_id: 5 },
+  {
+    name: "Neuvillette",
+    path: "./assets/icons/neuvillette_icon.webp",
+    theme_id: 5,
+  },
   { name: "Nilou", path: "./assets/icons/nilou_icon.webp", theme_id: 5 },
   { name: "Qiqi", path: "./assets/icons/qiqi_icon.webp", theme_id: 2 },
   {
@@ -142,11 +161,19 @@ const icons = [
     theme_id: 5,
   },
   { name: "Shenhe", path: "./assets/icons/shenhe_icon.webp", theme_id: 2 },
-  { name: "Tartaglia", path: "./assets/icons/tartaglia_icon.webp", theme_id: 5 },
+  {
+    name: "Tartaglia",
+    path: "./assets/icons/tartaglia_icon.webp",
+    theme_id: 5,
+  },
   { name: "Tighnari", path: "./assets/icons/tighnari_icon.webp", theme_id: 4 },
   { name: "Venti", path: "./assets/icons/venti_icon.webp", theme_id: 3 },
   { name: "Wanderer", path: "./assets/icons/wanderer_icon.webp", theme_id: 3 },
-  { name: "Wriothesley", path: "./assets/icons/wriothesley_icon.webp", theme_id: 2 },
+  {
+    name: "Wriothesley",
+    path: "./assets/icons/wriothesley_icon.webp",
+    theme_id: 2,
+  },
   { name: "Xianyun", path: "./assets/icons/xianyun_icon.webp", theme_id: 3 },
   { name: "Xiao", path: "./assets/icons/xiao_icon.webp", theme_id: 3 },
   { name: "Yae Miko", path: "./assets/icons/yae_miko_icon.webp", theme_id: 7 },
@@ -156,15 +183,19 @@ const icons = [
 ];
 
 function insertReactions() {
-  let sql = reactions.map((item) => "(?)").join(", ");
-  let params = reactions.flatMap((item) => item.reaction);
-  db.prepare(`INSERT INTO reactions (reaction) VALUES ${sql}`).run(params);
+  let sql = reactions.map((item) => "(?, ?)").join(", ");
+  let params = reactions.flatMap((item) => [item.reaction, item.code]);
+  db.prepare(`INSERT INTO reactions (reaction, code) VALUES ${sql}`).run(
+    ...params
+  );
 }
 
 function insertThemes() {
   let sql = themes.map((item) => "(?, ?, ?)").join(", ");
   let params = themes.map((item) => [item.name, item.colour, item.path]);
-  db.prepare(`INSERT INTO themes (name, colour, path) VALUES ${sql}`).run(...params);
+  db.prepare(`INSERT INTO themes (name, colour, path) VALUES ${sql}`).run(
+    ...params
+  );
 }
 
 function insertIcons() {
@@ -195,13 +226,30 @@ function insertMessages() {
         })
         .getTime();
       let likes = parseInt(Math.floor((Math.random() * g_userCount) / 2));
+      const msgid = db
+        .prepare(
+          `INSERT INTO messages (message, created, updated, likes, user_id) VALUES (?, ?, ?, ?, ?)`
+        )
+        .run(
+          faker.lorem.sentences({ min: 1, max: 3 }, "\n"),
+          createdDate.getTime(),
+          recentDate,
+          likes,
+          i + 1
+        );
+      generateReactions(msgid.lastInsertRowid);
+    }
+  }
+}
+
+function generateReactions(msgid) {
+  for (let i = 0; i < g_userCount; i++) {
+    if (Math.random() < 0.1) {
       db.prepare(
-        `INSERT INTO messages (message, created, updated, likes, user_id) VALUES (?, ?, ?, ?, ?)`
+        `INSERT INTO message_reaction (msg_id, reaction_id, user_id) VALUES (?, ?, ?)`
       ).run(
-        faker.lorem.sentences({ min: 1, max: 3 }, "\n"),
-        createdDate.getTime(),
-        recentDate,
-        likes,
+        msgid,
+        parseInt(Math.floor(Math.random() * reactions.length)) + 1,
         i + 1
       );
     }
@@ -236,10 +284,10 @@ function getRandomName() {
   return `${faker.word.adjective()} ${faker.word.noun()}`;
 }
 
-function getRandomIcon(){
- return parseInt(Math.floor(Math.random() * icons.length) + 1)
+function getRandomIcon() {
+  return parseInt(Math.floor(Math.random() * icons.length) + 1);
 }
 
-// resetDb()
+// resetDb();
 
 export { resetDb, getRandomName, getRandomIcon };

@@ -12,8 +12,17 @@ function getAllThemes() {
   }
 }
 
-function getRandomName(){
-  return seed.getRandomName()
+function getAllReactions() {
+  try {
+    const reactions = db.prepare("SELECT * FROM reactions").all();
+    return reactions;
+  } catch (error) {
+    throw error;
+  }
+}
+
+function getRandomName() {
+  return seed.getRandomName();
 }
 
 function getAllIcons() {
@@ -25,7 +34,7 @@ function getAllIcons() {
   }
 }
 
-//Not Needed 
+//Not Needed
 function getAllIconsJson() {
   try {
     const icons = db
@@ -47,8 +56,8 @@ function getAllIconsJson() {
 
 function generateNewUser() {
   const newUser = db.prepare(
-      `INSERT INTO users (username, icon_id) VALUES (?, ?)`
-    );
+    `INSERT INTO users (username, icon_id) VALUES (?, ?)`
+  );
   try {
     const trans = db
       .transaction((x) => {
@@ -110,7 +119,9 @@ function updateUser(userid) {
 function messagesByUser(userid) {
   try {
     const msg = db
-      .prepare(`SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.user_id = (?) ORDER BY created DESC`)
+      .prepare(
+        `SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.user_id = (?) ORDER BY created DESC`
+      )
       .all(userid);
     return msg;
   } catch (error) {
@@ -121,7 +132,9 @@ function messagesByUser(userid) {
 function getMessageById(msgId) {
   try {
     const msg = db
-      .prepare(`SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.msg_id = (?) ORDER BY created DESC`)
+      .prepare(
+        `SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.msg_id = (?) ORDER BY created DESC`
+      )
       .all(msgId);
     return msg;
   } catch (error) {
@@ -150,7 +163,7 @@ function newMessage(userid, message) {
 
 function getMessages(userid = 0, page = 0, count = 10) {
   try {
-    if (page==0) page = Date.now()
+    if (page == 0) page = Date.now();
     const newMessageFromUser = `SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.user_id = (?) ORDER BY created DESC LIMIT 1`;
     const message = db.prepare(`${newMessageFromUser}`).all(userid);
     let msgid = 0;
@@ -159,7 +172,7 @@ function getMessages(userid = 0, page = 0, count = 10) {
       .prepare(
         `SELECT * FROM messages as m INNER JOIN users AS u ON m.user_id = u.user_id WHERE m.msg_id != (?) AND m.created < (?) ORDER BY created DESC LIMIT (?)`
       )
-      .all(msgid,page ,count - Boolean(msgid));
+      .all(msgid, page, count - Boolean(msgid));
     return message.concat(newestMessages);
   } catch (error) {
     console.log(error);
@@ -167,7 +180,7 @@ function getMessages(userid = 0, page = 0, count = 10) {
   }
 }
 
-function getTotalMessageCount(){
+function getTotalMessageCount() {
   try {
     const total = db.prepare("SELECT COUNT(*) AS Total FROM messages").all();
     return total;
@@ -195,9 +208,34 @@ function deleteMessage(msgid) {
   }
 }
 
+function getMessageReactionTotals(msgid) {
+  try {
+    let msg = "";
+    if (msgid == 0) {
+      msg = db
+        .prepare(
+          "SELECT m.msg_id, r.code, COUNT(*) FROM message_reaction as m INNER JOIN reactions as r on m.reaction_id = r.reaction_id GROUP BY m.msg_id, m.reaction_id"
+        )
+        .all();
+    } else {
+      msg = db
+        .prepare(
+          "SELECT r.code, COUNT(*) as count FROM message_reaction as m INNER JOIN reactions as r on m.reaction_id = r.reaction_id WHERE msg_id = (?) GROUP BY m.reaction_id"
+        )
+        .all(msgid);
+    }
+
+    return msg;
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
+}
+
 export {
   getAllThemes,
   getAllIcons,
+  getAllReactions,
   generateNewUser,
   getUser,
   updateUser,
@@ -209,5 +247,6 @@ export {
   newMessage,
   likeMessage,
   getTotalMessageCount,
-  getRandomName
+  getRandomName,
+  getMessageReactionTotals,
 };

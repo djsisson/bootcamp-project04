@@ -7,7 +7,7 @@ async function startApp(){
   if (x.user_id == 0 || await r.getCurrentUser(x.user_id).then() == false) {
     await r.getNewUser().then()
   } 
-  const loadingPromise = await Promise.all([r.getThemes(), r.getIcons()])
+  const loadingPromise = await Promise.all([r.getThemes(), r.getIcons(), r.getBaseReactions()])
   ev.setEvents()
   ev.setHeader()
   ev.getMessages()

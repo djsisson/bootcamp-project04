@@ -21,6 +21,13 @@ app.get("/themes", (req, res) => {
     res.status(500).send();
   }
 });
+app.get("/reactions", (req, res) => {
+  try {
+    res.status(200).json(query.getAllReactions());
+  } catch (error) {
+    res.status(500).send();
+  }
+});
 
 app.get("/icons", (req, res) => {
   try {
@@ -160,6 +167,15 @@ app.delete("/messages/:msgid(\\d+)", (req, res) => {
     } else {
       res.status(200).send();
     }
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+app.get("/reaction/:msgid(\\d+)", (req, res) => {
+  try {
+    const result = query.getMessageReactionTotals(req.params.msgid);
+    res.status(200).send(result);
   } catch (error) {
     res.status(400).send();
   }
