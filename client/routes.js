@@ -20,7 +20,9 @@ async function getBaseReactions() {
     const response = await fetch(`${g.db}reactions`);
     if (response.status == 200) {
       const reactions = await response.json();
-      const newReactions = reactions.map((x) => x.code);
+      const newReactions = new Map(
+        reactions.map((x) => [x.reaction_id, x.code])
+      );
       g.setBaseReactions(newReactions);
     }
   } catch (error) {
@@ -171,6 +173,24 @@ async function getMsgReactions(msgid) {
   }
 }
 
+async function changeMsgReactions(msgid, reactionid) {
+  try {
+    const response = await fetch(
+      `${g.db}reaction/${msgid}/${g.getSettings().user_id}/${reactionid}`,
+      { method: "PUT" }
+    );
+    if (response.status == 200) {
+      await response.json().then((reactions) => {
+        g.updateReaction(msgid, reactions);
+      });
+
+      return true;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
   getThemes,
   getIcons,
@@ -184,4 +204,5 @@ export {
   delMessage,
   getMsgReactions,
   getBaseReactions,
+  changeMsgReactions,
 };

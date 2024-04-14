@@ -143,9 +143,14 @@ app.get("/messages/user/:userid(\\d+)", (req, res) => {
   }
 });
 
-app.put("/messages/:msgid(\\d+)/Like", (req, res) => {
-  //TODO
+app.put("/reaction/:msgid(\\d+)/:userid(\\d+)/:reactionid(\\d+)", (req, res) => {
   try {
+    const result = query.addReactiontomsg(req.params.msgid, req.params.userid, req.params.reactionid);
+    if (result.length == 0) {
+      res.status(400).send();
+    } else {
+      res.status(200).json(result);
+    }
   } catch (error) {
     res.status(400).send();
   }

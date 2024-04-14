@@ -206,30 +206,7 @@ function createMessage(x) {
 
   const newReactions = document.createElement("div");
   newReactions.classList.add("message-reactions");
-
-  g.getBaseReactions().forEach((r) => {
-    
-    const newRadio = document.createElement("input");
-    newRadio.type = "radio";
-    newRadio.name = `${x.msg_id}-reaction`;
-    newRadio.id = `${x.msg_id}-reaction-${r}`;
-    newRadio.classList.add("msg-radio");
-    const newLabel = document.createElement("label");
-    newLabel.htmlFor = `${x.msg_id}-reaction-${r}`;
-    const charCode = parseInt(r, 16);
-    newLabel.textContent = `${String.fromCodePoint(charCode)}`;
-    const newCount = document.createElement("span");
-    const found = g.getReactions().get(x.msg_id).findIndex((j) => (j.code == r))
-    if (found != -1) {
-      newCount.textContent = g.getReactions().get(x.msg_id)[found].count
-    }
-    newCount.classList.add(`msg${x.msg_id}-${charCode}`);
-    const radioGap = document.createElement("span")
-    newReactions.appendChild(newRadio);
-    newReactions.appendChild(newLabel);
-    newReactions.appendChild(newCount);
-    newReactions.appendChild(radioGap);
-  });
+  setReactionsForElement(newReactions, x.msg_id);
 
   //delete button if owner of message
   if (g.getSettings().user_id == x.user_id) {
@@ -255,6 +232,49 @@ function createMessage(x) {
   element.appendChild(newMessageWrapper);
 
   return element;
+}
+
+function setReactionsForElement(element, msg_id) {
+  element.innerHTML = "";
+  g.getBaseReactions().forEach((r, i) => {
+    const newRadio = document.createElement("input");
+    newRadio.type = "radio";
+    newRadio.name = `${msg_id}-reaction`;
+    newRadio.id = `${msg_id}-reaction-${r}`;
+    newRadio.classList.add("msg-radio");
+    const newLabel = document.createElement("label");
+    newLabel.htmlFor = `${msg_id}-reaction-${r}`;
+    const charCode = parseInt(r, 16);
+    newLabel.textContent = `${String.fromCodePoint(charCode)}`;
+    const newCount = document.createElement("span");
+    const found = g
+      .getReactions()
+      .get(msg_id)
+      .findIndex((j) => j.code == r);
+    if (found != -1) {
+      newCount.textContent = g.getReactions().get(msg_id)[found].count;
+    }
+    newCount.classList.add(`msg${msg_id}-${charCode}`);
+    const radioGap = document.createElement("span");
+    newRadio.reactionId = i;
+    newRadio.addEventListener("change", async (e) => {
+      await changeMsgReactions(element, msg_id, e.target.reactionId);
+    });
+    element.appendChild(newRadio);
+    element.appendChild(newLabel);
+    element.appendChild(newCount);
+    element.appendChild(radioGap);
+
+    return element;
+  });
+}
+
+async function changeMsgReactions(element, msgid, reactionId) {
+  await r.changeMsgReactions(msgid, reactionId).then((x) => {
+    if (x) {
+      setReactionsForElement(element, msgid);
+    }
+  });
 }
 
 function displayMessages() {

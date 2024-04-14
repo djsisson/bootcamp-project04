@@ -75,6 +75,11 @@ function setReactions(newReactions) {
   reactions = newReactions;
 }
 
+function updateReaction(msgid, reaction) {
+  reactions.set(msgid, reaction);
+  console.log(reactions.get(msgid))
+}
+
 export {
   db,
   getThemes,
@@ -94,4 +99,5 @@ export {
   setReactions,
   getBaseReactions,
   setBaseReactions,
+  updateReaction,
 };

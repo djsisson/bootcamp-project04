@@ -226,6 +226,9 @@ h1 {
   grid-template-rows: 1fr;
   scale: 80%
 }
+.message-reactions input{
+  appearance: none;
+}
 .message-reactions label:hover{
   cursor: pointer;
 }

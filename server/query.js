@@ -189,8 +189,32 @@ function getTotalMessageCount() {
   }
 }
 
-function likeMessage(msgid) {
-  //TODO
+function addReactiontomsg(msgid, userid, reactionid) {
+  const newReaction = db.prepare(
+    `INSERT INTO message_reaction (msg_id, user_id, reaction_id) VALUES (?, ?, ?) ON CONFLICT (msg_id, user_id) DO UPDATE SET reaction_id = (?)`
+  );
+  try {
+    const trans = db
+      .transaction((x) => {
+        const test = newReaction.run(msgid, userid, reactionid, reactionid);
+        return test;
+      })
+      .apply();
+    if (trans.lastInsertRowid != 0) {
+      return db
+        .prepare("SELECT * FROM message_reaction where id = (?)")
+        .all(trans.lastInsertRowid)[0];
+    } else {
+      return db
+        .prepare(
+          "SELECT r.code, COUNT(*) as count FROM message_reaction as m INNER JOIN reactions as r on m.reaction_id = r.reaction_id WHERE msg_id = (?) GROUP BY m.reaction_id"
+        )
+        .all(msgid);
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 function deleteMessage(msgid) {
@@ -227,7 +251,7 @@ function getMessageReactionTotals(msgid) {
 
     return msg;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     throw error;
   }
 }
@@ -245,8 +269,8 @@ export {
   messagesByUser,
   getMessageById,
   newMessage,
-  likeMessage,
   getTotalMessageCount,
   getRandomName,
   getMessageReactionTotals,
+  addReactiontomsg,
 };
