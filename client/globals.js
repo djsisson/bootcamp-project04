@@ -77,7 +77,6 @@ function setReactions(newReactions) {
 
 function updateReaction(msgid, reaction) {
   reactions.set(msgid, reaction);
-  console.log(reactions.get(msgid))
 }
 
 export {

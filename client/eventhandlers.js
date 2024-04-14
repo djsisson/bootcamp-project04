@@ -141,19 +141,23 @@ function setHeader() {
 }
 
 async function getMessages() {
-  await r.getMessages().then();
-  await getReactions();
+  await r.getMessages().then(()=>  {
+    displayMessages();
+    getReactions();
+  });
+  
+  
 }
 
 async function getReactions() {
   let newReactions = new Map();
-  for (const msg of g.getMessages()) {
-    const msgreactions = await r.getMsgReactions(msg.msg_id);
-    newReactions.set(msg.msg_id, msgreactions);
-  }
-  g.setReactions(newReactions);
-  displayMessages();
-  return newReactions;
+  g.setReactions(newReactions)
+  g.getMessages().forEach (async (msg) => {
+    await r.getMsgReactions(msg.msg_id).then((result) => {
+      g.updateReaction(msg.msg_id,result)
+      setReactionsForElement(document.querySelector(`.message-reactions-${msg.msg_id}`),msg.msg_id)
+    })
+  })
 }
 
 function createMessage(x) {
@@ -206,7 +210,8 @@ function createMessage(x) {
 
   const newReactions = document.createElement("div");
   newReactions.classList.add("message-reactions");
-  setReactionsForElement(newReactions, x.msg_id);
+  newReactions.classList.add(`message-reactions-${x.msg_id}`);
+  // setReactionsForElement(newReactions, x.msg_id);
 
   //delete button if owner of message
   if (g.getSettings().user_id == x.user_id) {
