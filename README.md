@@ -32,3 +32,7 @@ Also i didnt get time to add paged results so at the moment it only returns the 
 
 overall i was quite pleased with my server code
 not so much the rest.
+
+
+Update Whilst writing this i realised i could take out the reactions from messages, and then update each post in a for each async function 
+this way the message all display quickly, and teh reaction come in and update when the response arrives for each messge, probably not a great way to do it, but its better than it was.
