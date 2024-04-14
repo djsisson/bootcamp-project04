@@ -200,19 +200,12 @@ function addReactiontomsg(msgid, userid, reactionid) {
         return test;
       })
       .apply();
-    if (trans.lastInsertRowid != 0) {
-      return db
-        .prepare("SELECT * FROM message_reaction where id = (?)")
-        .all(trans.lastInsertRowid)[0];
-    } else {
-      return db
-        .prepare(
-          "SELECT r.code, COUNT(*) as count FROM message_reaction as m INNER JOIN reactions as r on m.reaction_id = r.reaction_id WHERE msg_id = (?) GROUP BY m.reaction_id"
-        )
-        .all(msgid);
-    }
+    return db
+      .prepare(
+        "SELECT r.code, COUNT(*) as count FROM message_reaction as m INNER JOIN reactions as r on m.reaction_id = r.reaction_id WHERE msg_id = (?) GROUP BY m.reaction_id"
+      )
+      .all(msgid);
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
